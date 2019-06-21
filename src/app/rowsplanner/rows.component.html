@@ -1,0 +1,81 @@
+      
+      <td>
+        <select name="category_id" [(ngModel)]="category_id" class="select">
+          <option>Select Category</option>
+          <option *ngFor="let key of category" [value]="key.value">{{ key.label }}</option>
+          </select>
+      </td>
+      <td role="cell">
+      <ng2-slider
+        #range
+        min="1"
+        max="100"
+        startValue="1"
+        endValue="100"
+        (onRangeChanged)="rangeValueChanged($event, 'range-1-start', 'range_1_end')">
+      </ng2-slider>
+      </td>
+      <td role="cell">
+      <ng2-slider
+        #range
+        min="1"
+        max="100"
+        startValue="1"
+        endValue="100"
+        (onRangeChanged)="rangeValueChanged($event, 'range-1-start', 'range_1_end')">
+        </ng2-slider>   
+      </td>
+      <td role="cell">
+        <ng2-slider
+        #range
+        min="0"
+        max="100"
+        startValue="0"
+        endValue="100"
+        (onRangeChanged)="rangeValueChanged($event, 'range-1-start', 'range_1_end')">
+        </ng2-slider>
+      </td>
+      <td role="cell">
+       <ng2-slider
+        #range
+        min="0"
+        max="100"
+        startValue="0"
+        endValue="100"
+        (onRangeChanged)="rangeValueChanged($event, 'range-1-start', 'range_1_end')">
+        </ng2-slider>
+      </td>
+      <td role="cell">
+        <ng2-slider
+        #range
+        min="0"
+        max="100"
+        startValue="0"
+        endValue="100"
+        (onRangeChanged)="rangeValueChanged($event, 'range-1-start', 'range_1_end')">
+        </ng2-slider>
+      </td>
+      <td role="cell">
+        <ng2-slider
+        #range
+        min="0"
+        max="100"
+        startValue="0"
+        endValue="100"
+        (onRangeChanged)="rangeValueChanged($event, 'range-1-start', 'range_1_end')">
+        </ng2-slider>
+      </td>
+      <td role="cell">
+        <ng2-slider
+        #range
+        min="1"
+        max="100"
+        startValue="1"
+        endValue="100"
+        (onRangeChanged)="rangeValueChanged($event, 'range-1-start', 'range_1_end')">
+        </ng2-slider>
+      </td>
+      <td role="cell">
+      Action
+      </td>
+    

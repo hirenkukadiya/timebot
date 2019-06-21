@@ -1,0 +1,39 @@
+<div class="main">
+<div class="master-mid">
+	<!--left panel code starts here-->
+	<div class="left-master-search">
+		<div class="todomaster-panels">
+			<div class="list-items">
+				<ul class="scheduled-items" [sortablejs]="categoryList" [sortablejsOptions]="sortableOptions" >
+					<ng-container *ngFor="let Category of categoryList">
+						<li (click)="CategoryForm.get('parent').setValue(Category.categoryID, {emitEvent: false});CategoryForm.get('parent_name').setValue(Category.name, {emitEvent: false})">
+							<input type="checkbox" value="1" id="" name="check[]" [(ngModel)]="Category.status" />
+							<label for="1" (click)="toggleCheckBox(Category)"></label>
+							<div class="parent_cat">{{ Category.name}} 
+								<div class="child_cate" *ngIf="Category.parent !=''">( {{getCategoryName(Category.parent)}} )
+								</div>
+							</div>
+						</li>
+					</ng-container>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="middle-calender-search">
+	<div class="form-search">
+		<form name="search_unassign" [formGroup]="CategoryForm" (submit)="addCategory(name)"  novalidate>
+			<div class="form_input">
+				<label for="email">Parent Category</label>
+				<input type="text" name="parent_name" value='' formControlName="parent_name" class="inputsearch" [(ngModel)]="parent_name" disabled="disabled">
+				<label for="email">Category</label>
+				<input type="text" placeholder="Type your title here" maxlength="50" class="inputsearch" name="name" formControlName="name"  [(ngModel)]="name" required>
+				<span class="errormessage" *ngIf="CategoryForm.get('name').hasError('required') && (CategoryForm.get('name').dirty || CategoryForm.get('name').touched)" >This field is required </span>
+				<input type="hidden" name="parent" value='' formControlName="parent" [(ngModel)]="parent">
+				</div>
+				<input type="submit" value="Add" class="add-items"> 
+				<input type="button" value="Reset" (click)="resetForm()" class="add-items" style="margin-left: 5px;"> 
+		</form>
+	</div>
+</div>
+
+</div>

@@ -1,0 +1,932 @@
+<!-- master container starts here-->
+<div class="alertmsg">
+  <span class="closebtn" (click)="hide_msg()">&times;</span>
+  <span class="msg">You can start 5 task at time!</span>
+</div>
+<div class="main">
+  <div class="master-mid">
+    <!--left panel code starts here-->
+    <div class="left-master-search">
+      <div class="todomaster-panels">
+        <!--tabb menu code starts here-->
+        <div class="addmasteritems">
+          BOT TO DO LIST
+          
+          <div id="button" class="popupHoverElement">
+           <img src="assets/images/filter-icon.png" alt="additems" />
+           <div id="newpop" class="popupBox">
+             <ul class="filter_menu">
+                <li (click)="filter('1','1')" [ngClass]="filter_no == 1 ? 'active' : ''">
+                  <img src="assets/images/f1.png" />Category <i [ngClass]="sorting == 1 ? 'fa fa-sort-amount-asc' : 'fa fa-sort-amount-desc'" aria-hidden="true" style="color:#ea4d5b;"></i> 
+                </li>
+                <li (click)="filter('2','0')" [ngClass]="filter_no == 2 ? 'active' : ''">
+                  <img src="assets/images/f2.png" />Priority
+                </li>
+                <li (click)="filter('3','0')" [ngClass]="filter_no == 3 ? 'active' : ''">
+                  <img src="assets/images/f3.png" />When Due
+                </li>
+                <li (click)="filter('4','1')" [ngClass]="filter_no == 4 ? 'active' : ''">
+                  <img src="assets/images/f4.png" />List Sort <i [ngClass]="clearFilterSorting == 1 ? 'fa fa-sort-amount-asc' : 'fa fa-sort-amount-desc'" aria-hidden="true" style="color:#ea4d5b;"></i> 
+                </li> 
+                <li (click)="completedTask('5')" [ngClass]="completedTaskDisplay == 1 ? 'active' : ''">
+                  <img [src]="completedTaskDisplay == 1 ? 'assets/images/check.png' : 'assets/images/uncheck.png'"/>Completed 
+                </li>
+                 <li (click)="completedTask('6')" [ngClass]="archiveTasksDisplay == 1 ? 'active' : ''">
+                  <img [src]="archiveTasksDisplay == 1 ? 'assets/images/check.png' : 'assets/images/uncheck.png'"/>Archive 
+                </li>
+              </ul>
+           </div>
+         </div>
+        </div>
+        <!--tab menu code ends here-->
+        <div class="list-items">
+          <div class="form-search">
+            <form name="search_unassign" [formGroup]="taskForm" (submit)="addUnassignedTask(task_name, category_id)"
+              novalidate>
+              <input type="text" placeholder="Type your title here" maxlength="50" class="input " name="task_name"
+                formControlName="task_name" [(ngModel)]="task_name" required />
+              <input type="submit" value="" class="add-items" id="submit" />
+              <span class="errormessage" *ngIf="
+                  taskForm.get('task_name').hasError('required') &&
+                  (taskForm.get('task_name').dirty ||
+                    taskForm.get('task_name').touched)
+                ">This field is required
+              </span>
+              <select name="category_id" [(ngModel)]="category_id" formControlName="category_id" class="select">
+                <option value="">Select Category</option>
+                <ng-container *ngFor="let key of category">
+                  <option *ngIf="key.is_display" [value]="key.value">{{
+                    key.label
+                  }}</option>
+                </ng-container>
+              </select>
+            </form>
+          </div>
+        </div>
+    <div class="left-navi">
+      <div class="category_filter_tab" [style.display]="filter_no == 1 ? 'block' : 'none'">
+              <ul id="nav3" class="menus" cdkDropListGroup>
+                <li *ngFor="let cats of myTree; let i = index">
+                 <mat-expansion-panel [expanded]="false">               
+                   <mat-expansion-panel-header>
+                     <a href="javascript:void(0)">
+                      <span class="dot" [ngStyle]="{ backgroundColor:'#' + cats.color }"></span>
+                      {{ cats.name }}
+                     </a>
+                   </mat-expansion-panel-header>
+                   <ul cdkDropList class="example-list" [cdkDropListData]="cats.childrens" (cdkDropListDropped)="drop($event)">
+                    <li class="example-box" [cdkDragData]="task" *ngFor="let task of cats.childrens"
+                      (mouseenter)="enter(i)" cdkDrag>
+                      <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
+
+                      <div class="squaredThree" [ngClass]="{
+                          checked: task.status != undefined ? task.status : false
+                        }">
+                          <span  [ngClass] ="{task_start :task.state == 0, task_stop :task.state == 1}" class="ts_status" (click)="onStartTime(task, task.state)"style="margin-right: 0px;float: left;width: 29px; margin-top: 3px;">            
+                        </span>
+                        <input type="checkbox" value="1" id="" name="check[]" [(ngModel)]="task.status" />
+                        <label for="1" [ngClass]="{
+                            pr1: task.priority == 1,
+                            pr2: task.priority == 2,
+                            pr3: task.priority == 3,
+                            pr4: task.priority == 4
+                          }" class="draggable-filter-item" (click)="toggleCheckBox(task, filter_no)">                             
+                        </label> <span class="taskname">{{ task.name }}</span>
+                        <div class="menu_option hover-dotted">
+                          <img src="assets/images/detail-icon.png" />
+                          <div class="popup">
+                            <li *ngIf="task.timelog.length == 0">
+                              <div class="delete-btn" (click)="deleteTasks(task, filter_no)">
+                                <i class="fa fa-trash"></i>Delete
+                              </div>
+                            </li>
+                            <li *ngIf="task.timelog.length > 0">
+                              <div class="delete-btn" (click)="archiveTasks(task, filter_no)">
+                                <i class="fa fa-archive"></i>Archive
+                              </div>
+                            </li>
+                            <li class="priority">
+                              <div class="priority_lable">Priority</div>
+                              <div class="priority_element">
+                                <div title="Critical" (click)="onSetPriorityItem(task, 1, filter_no)"
+                                [ngClass]="task.priority == 1 ? 'new_pr' : ''">
+                                <img src="/assets/images/p1.png" />
+                                </div>
+                                <div title="High" (click)="onSetPriorityItem(task, 2, filter_no)" [ngClass]="task.priority == 2 ? 'new_pr' : ''"><img src="/assets/images/p2.png" />
+                                </div>
+                                <div title="Medium" (click)="onSetPriorityItem(task, 3, filter_no)" [ngClass]="task.priority == 3 ? 'new_pr' : ''"><img src="/assets/images/p3.png" />
+                                </div>
+                                <div title="Low" (click)="onSetPriorityItem(task, 4, filter_no)" [ngClass]="task.priority == 4 ? 'new_pr' : ''"><img src="/assets/images/p4.png" />
+                                </div>
+                              </div>
+                            </li>                             
+                          </div>
+                        </div>
+              </div>
+              </li>
+              </ul>
+              </mat-expansion-panel>
+              </li>
+              </ul>
+      </div>
+
+      <div class="priority_filter_tab" [style.display]="filter_no == 2 ? 'block' : 'none'">
+        <ul id="nav2" class="menus">
+          <li *ngFor="let key of objectKeys(priorityTasks)">
+             <mat-expansion-panel [expanded]="false">               
+               <mat-expansion-panel-header>
+               <a href="javascript:void(0)">{{ key }}</a>
+               </mat-expansion-panel-header>
+            
+            <ul>
+              <li *ngFor="let task of priorityTasks[key]">
+                <div class="squaredThree" [ngClass]="{checked: task.status != undefined ? task.status : false}">
+                  <span  [ngClass] ="{task_start :task.state == 0, task_stop :task.state == 1}" class="ts_status" (click)="onStartTime(task, task.state)"style="margin-right: 0px;float: left;width: 29px; margin-top: 3px;">
+                  </span>
+                  <input type="checkbox" value="1" id="" name="check[]" [(ngModel)]="task.status" />
+                  <label for="1" [ngClass]="{
+                            pr1: task.priority == 1,
+                            pr2: task.priority == 2,
+                            pr3: task.priority == 3,
+                            pr4: task.priority == 4
+                          }" class="draggable-filter-item" (click)="toggleCheckBox(task, 2)"style="left:12%;">                        
+                  </label><span class="taskname">{{ task.name }}</span>
+                  <div class="menu_option hover-dotted">
+                    <img src="assets/images/detail-icon.png" />
+                    <div class="popup">
+                <li *ngIf="task.timelog.length == 0">
+                  <div class="delete-btn" (click)="deleteTasks(task, filter_no)">
+                    <i class="fa fa-trash"></i>Delete
+                  </div>
+                </li>
+                <li *ngIf="task.timelog.length > 0">
+                  <div class="delete-btn" (click)="archiveTasks(task, filter_no)">
+                    <i class="fa fa-archive"></i>Archive
+                  </div>
+                </li>
+              <li class="priority">
+                <div class="priority_lable">Priority</div>
+                <div class="priority_element">
+                  <div title="Critical" (click)="onSetPriorityItem(task, 1, filter_no)"
+                    [ngClass]="task.priority == 1 ? 'new_pr' : ''">
+                    <img src="/assets/images/p1.png" />
+                  </div>
+                  <div title="High" (click)="onSetPriorityItem(task, 2, filter_no)"
+                    [ngClass]="task.priority == 2 ? 'new_pr' : ''">
+                    <img src="/assets/images/p2.png" />
+                  </div>
+                  <div title="Medium" (click)="onSetPriorityItem(task, 3, filter_no)"
+                    [ngClass]="task.priority == 3 ? 'new_pr' : ''">
+                    <img src="/assets/images/p3.png" />
+                  </div>
+                  <div title="Low" (click)="onSetPriorityItem(task, 4, filter_no)"
+                    [ngClass]="task.priority == 4 ? 'new_pr' : ''">
+                    <img src="/assets/images/p4.png" />
+                  </div>
+                </div>
+              </li>
+        </div>
+          </div>
+          </div>
+          </li>
+          </ul>
+           </mat-expansion-panel>
+          </li>
+          </ul>
+      </div>
+
+      <div class="when_due_filter_tab" [style.display]="filter_no == 3 ? 'block' : 'none'">
+          <mat-expansion-panel [expanded]="false">               
+            <mat-expansion-panel-header>
+             <img src="assets/images/calendar.png" />
+             <a href="javascript:void(0)">Today</a>
+            </mat-expansion-panel-header>
+            <ul cdkDropListGroup>
+              <li *ngFor="let cats of todaysTask; let i = index">
+                <span class="dot" [ngStyle]="{ backgroundColor:'#' + cats.color }"></span>
+                <a href="javascript:void(0)"> {{ cats.name }}</a>
+                <ul cdkDropList class="example-list" [cdkDropListData]="cats.childrens" (cdkDropListDropped)="drop($event)">
+                  <li class="example-box" [cdkDragData]="task" *ngFor="let task of cats.childrens" (mouseenter)="enter(i)" cdkDrag>
+                    <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
+                    <div class="squaredThree" [ngClass]="{checked: task.status != undefined ? task.status : false}">
+                        <span  [ngClass] ="{task_start :task.state == 0, task_stop :task.state == 1}" class="ts_status" (click)="onStartTime(task, task.state)"style="margin-right: 0px;float: left;width: 29px; margin-top: 3px;">            
+                        </span>
+                        <input type="checkbox" value="1" id="" name="check[]" [(ngModel)]="task.status" />
+                        <label for="1" [ngClass]="{
+                            pr1: task.priority == 1,
+                            pr2: task.priority == 2,
+                            pr3: task.priority == 3,
+                            pr4: task.priority == 4
+                          }" class="draggable-filter-item" (click)="toggleCheckBox(task, filter_no)"> 
+                        </label>
+                        <span class="taskname">{{ task.name }}</span>
+                        <div class="menu_option hover-dotted">
+                            <img src="assets/images/detail-icon.png" />
+                            <div class="popup">
+                              <li>
+                              <div class="delete-btn" (click)="openConfirmDialog(task)">
+                                  <i class="fa fa-pencil-square-o"></i>Edit
+                                </div>
+                              </li>
+                              <li *ngIf="task.timelog.length == 0">
+                                <div class="delete-btn" (click)="deleteTasks(task, filter_no)">
+                                  <i class="fa fa-trash"></i>Delete
+                                </div>
+                              </li>
+                              <li *ngIf="task.timelog.length > 0">
+                                <div class="delete-btn" (click)="archiveTasks(task, filter_no)">
+                                  <i class="fa fa-archive"></i>Archive
+                                </div>
+                              </li>
+                              <li class="priority">
+                                <div class="priority_lable">Priority</div>
+                                <div class="priority_element">
+                                  <div title="Critical" (click)="onSetPriorityItem(task, 1, filter_no)" [ngClass]="task.priority == 1 ? 'new_pr' : ''">
+                                    <img src="/assets/images/p1.png" />
+                                  </div>
+                                  <div title="High" (click)="onSetPriorityItem(task, 2, filter_no)"
+                                  [ngClass]="task.priority == 2 ? 'new_pr' : ''">
+                                    <img src="/assets/images/p2.png" />
+                                  </div>
+                                  <div title="Medium" (click)="onSetPriorityItem(task, 3, filter_no)" [ngClass]="task.priority == 3 ? 'new_pr' : ''">
+                                  <img src="/assets/images/p3.png" />
+                                  </div>
+                                  <div title="Low" (click)="onSetPriorityItem(task, 4, filter_no)" [ngClass]="task.priority == 4 ? 'new_pr' : ''">
+                                    <img src="/assets/images/p4.png" />
+                                  </div>
+                                </div>
+                              </li>                              
+                          </div>
+                        </div>
+                    </div>
+                  </li>
+                </ul>                      
+              </li>
+            </ul>
+          </mat-expansion-panel>
+          <mat-expansion-panel [expanded]="false">               
+             <mat-expansion-panel-header>
+              <img src="assets/images/calendar.png" />
+              <a href="javascript:void(0)">Tomorrow</a>
+             </mat-expansion-panel-header> 
+             <ul cdkDropListGroup>
+                  <li *ngFor="let cats of tomorrowTask; let i = index">
+                       <span class="dot" [ngStyle]="{ backgroundColor:'#' + cats.color }"></span>
+                       <a href="javascript:void(0)"> {{ cats.name }}</a>
+                      <ul cdkDropList class="example-list" [cdkDropListData]="cats.childrens" (cdkDropListDropped)="drop($event)">
+                        <li class="example-box" [cdkDragData]="task" *ngFor="let task of cats.childrens" (mouseenter)="enter(i)" cdkDrag>
+                        <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
+                        <div class="squaredThree" [ngClass]="{checked: task.status != undefined ? task.status : false}">
+                            <span  [ngClass] ="{task_start :task.state == 0, task_stop :task.state == 1}" class="ts_status" (click)="onStartTime(task, task.state)"style="margin-right: 0px;float: left;width: 29px; margin-top: 3px;">            
+                            </span>
+                            <input type="checkbox" value="1" id="" name="check[]" [(ngModel)]="task.status" />
+                              <label for="1" [ngClass]="{
+                                  pr1: task.priority == 1,
+                                  pr2: task.priority == 2,
+                                  pr3: task.priority == 3,
+                                  pr4: task.priority == 4
+                                }" class="draggable-filter-item" (click)="toggleCheckBox(task, filter_no)"> 
+                              </label><span class="taskname">{{ task.name }}</span>
+                          <div class="menu_option hover-dotted">
+                            <img src="assets/images/detail-icon.png" />
+                            <div class="popup">
+                              <li *ngIf="task.timelog.length == 0">
+                                <div class="delete-btn" (click)="deleteTasks(task, filter_no)">
+                                  <i class="fa fa-trash"></i>Delete
+                                </div>
+                              </li>
+                              <li *ngIf="task.timelog.length > 0">
+                                <div class="delete-btn" (click)="archiveTasks(task, filter_no)">
+                                  <i class="fa fa-archive"></i>Archive
+                                </div>
+                              </li>
+                              
+                              <li class="priority">
+                                <div class="priority_lable">Priority</div>
+                                <div class="priority_element">
+                                  <div title="Critical" (click)="onSetPriorityItem(task, 1, filter_no)"
+                                  [ngClass]="task.priority == 1 ? 'new_pr' : ''">
+                                  <img src="/assets/images/p1.png" />
+                                  </div>
+                                  <div title="High" (click)="onSetPriorityItem(task, 2, filter_no)"
+                                  [ngClass]="task.priority == 2 ? 'new_pr' : ''">
+                                  <img src="/assets/images/p2.png" />
+                                  </div>
+                                  <div title="Medium" (click)="onSetPriorityItem(task, 3, filter_no)"
+                                  [ngClass]="task.priority == 3 ? 'new_pr' : ''">
+                                  <img src="/assets/images/p3.png" />
+                                  </div>
+                                  <div title="Low" (click)="onSetPriorityItem(task, 4, filter_no)"
+                                  [ngClass]="task.priority == 4 ? 'new_pr' : ''">
+                                  <img src="/assets/images/p4.png" />
+                                </div>
+                              </div>
+                            </li>
+                          </div>
+                        </div>
+                       </div>
+                      </li>
+                    </ul>                      
+                  </li>
+             </ul>        
+          </mat-expansion-panel>
+          <mat-expansion-panel [expanded]="false">               
+             <mat-expansion-panel-header>
+              <img src="assets/images/calendar.png" />
+              <a href="javascript:void(0)">Upcoming</a>
+             </mat-expansion-panel-header>
+              <ul cdkDropListGroup>
+                  <li *ngFor="let cats of upcommingTask; let i = index">
+                       <span class="dot" [ngStyle]="{ backgroundColor:'#' + cats.color }"></span>
+                       <a href="javascript:void(0)"> {{ cats.name }}</a>
+                      <ul cdkDropList class="example-list" [cdkDropListData]="cats.childrens" (cdkDropListDropped)="drop($event)">
+                        <li class="example-box" [cdkDragData]="task" *ngFor="let task of cats.childrens" (mouseenter)="enter(i)" cdkDrag>
+                        <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
+                        <div class="squaredThree" [ngClass]="{checked: task.status != undefined ? task.status : false}">
+                            <span  [ngClass] ="{task_start :task.state == 0, task_stop :task.state == 1}" class="ts_status" (click)="onStartTime(task, task.state)"style="margin-right: 0px;float: left;width: 29px; margin-top: 3px;">            
+                            </span>
+                            <input type="checkbox" value="1" id="" name="check[]" [(ngModel)]="task.status" />
+                              <label for="1" [ngClass]="{
+                                  pr1: task.priority == 1,
+                                  pr2: task.priority == 2,
+                                  pr3: task.priority == 3,
+                                  pr4: task.priority == 4
+                                }" class="draggable-filter-item" (click)="toggleCheckBox(task, filter_no)"> 
+                              </label><span class="taskname">{{ task.name }}</span>
+                          <div class="menu_option hover-dotted">
+                            <img src="assets/images/detail-icon.png" />
+                            <div class="popup">
+                              <li *ngIf="task.timelog.length == 0">
+                                <div class="delete-btn" (click)="deleteTasks(task, filter_no)">
+                                  <i class="fa fa-trash"></i>Delete
+                                </div>
+                              </li>
+                              <li *ngIf="task.timelog.length > 0">
+                                <div class="delete-btn" (click)="archiveTasks(task, filter_no)">
+                                  <i class="fa fa-archive"></i>Archive
+                                </div>
+                              </li>
+                              
+                              <li class="priority">
+                                <div class="priority_lable">Priority</div>
+                                <div class="priority_element">
+                                  <div title="Critical" (click)="onSetPriorityItem(task, 1, filter_no)"
+                                  [ngClass]="task.priority == 1 ? 'new_pr' : ''">
+                                  <img src="/assets/images/p1.png" />
+                                  </div>
+                                  <div title="High" (click)="onSetPriorityItem(task, 2, filter_no)"
+                                  [ngClass]="task.priority == 2 ? 'new_pr' : ''">
+                                  <img src="/assets/images/p2.png" />
+                                  </div>
+                                  <div title="Medium" (click)="onSetPriorityItem(task, 3, filter_no)"
+                                  [ngClass]="task.priority == 3 ? 'new_pr' : ''">
+                                  <img src="/assets/images/p3.png" />
+                                  </div>
+                                  <div title="Low" (click)="onSetPriorityItem(task, 4, filter_no)"
+                                  [ngClass]="task.priority == 4 ? 'new_pr' : ''">
+                                  <img src="/assets/images/p4.png" />
+                                </div>
+                              </div>
+                            </li>
+                          </div>
+                        </div>
+                       </div>
+                      </li>
+                    </ul>                      
+                  </li>
+             </ul>            
+          </mat-expansion-panel>
+          <mat-expansion-panel [expanded]="false">               
+             <mat-expansion-panel-header>
+              <img src="assets/images/calendar.png" />
+              <a href="javascript:void(0)">No Due Date</a>
+              </mat-expansion-panel-header>
+              <ul cdkDropListGroup>
+                  <li *ngFor="let cats of nodueTask; let i = index">
+                       <span class="dot" [ngStyle]="{ backgroundColor:'#' + cats.color }"></span>
+                       <a href="javascript:void(0)"> {{ cats.name }}</a>
+                      <ul cdkDropList class="example-list" [cdkDropListData]="cats.childrens" (cdkDropListDropped)="drop($event)">
+                        <li class="example-box" [cdkDragData]="task" *ngFor="let task of cats.childrens" (mouseenter)="enter(i)" cdkDrag>
+                        <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
+                        <div class="squaredThree" [ngClass]="{checked: task.status != undefined ? task.status : false}">
+                            <span  [ngClass] ="{task_start :task.state == 0, task_stop :task.state == 1}" class="ts_status" (click)="onStartTime(task, task.state)"style="margin-right: 0px;float: left;width: 29px; margin-top: 3px;">            
+                            </span>
+                            <input type="checkbox" value="1" id="" name="check[]" [(ngModel)]="task.status" />
+                              <label for="1" [ngClass]="{
+                                  pr1: task.priority == 1,
+                                  pr2: task.priority == 2,
+                                  pr3: task.priority == 3,
+                                  pr4: task.priority == 4
+                                }" class="draggable-filter-item" (click)="toggleCheckBox(task, filter_no)"> 
+                              </label><span class="taskname">{{ task.name }}</span>
+                          <div class="menu_option hover-dotted">
+                            <img src="assets/images/detail-icon.png" />
+                            <div class="popup">
+                              <li *ngIf="task.timelog.length == 0">
+                                <div class="delete-btn" (click)="deleteTasks(task, filter_no)">
+                                  <i class="fa fa-trash"></i>Delete
+                                </div>
+                              </li>
+                              <li *ngIf="task.timelog.length > 0">
+                                <div class="delete-btn" (click)="archiveTasks(task, filter_no)">
+                                  <i class="fa fa-archive"></i>Archive
+                                </div>
+                              </li>
+                              
+                              <li class="priority">
+                                <div class="priority_lable">Priority</div>
+                                <div class="priority_element">
+                                  <div title="Critical" (click)="onSetPriorityItem(task, 1, filter_no)"
+                                  [ngClass]="task.priority == 1 ? 'new_pr' : ''">
+                                  <img src="/assets/images/p1.png" />
+                                  </div>
+                                  <div title="High" (click)="onSetPriorityItem(task, 2, filter_no)"
+                                  [ngClass]="task.priority == 2 ? 'new_pr' : ''">
+                                  <img src="/assets/images/p2.png" />
+                                  </div>
+                                  <div title="Medium" (click)="onSetPriorityItem(task, 3, filter_no)"
+                                  [ngClass]="task.priority == 3 ? 'new_pr' : ''">
+                                  <img src="/assets/images/p3.png" />
+                                  </div>
+                                  <div title="Low" (click)="onSetPriorityItem(task, 4, filter_no)"
+                                  [ngClass]="task.priority == 4 ? 'new_pr' : ''">
+                                  <img src="/assets/images/p4.png" />
+                                </div>
+                              </div>
+                            </li>
+                          </div>
+                        </div>
+                       </div>
+                      </li>
+                    </ul>                      
+                  </li>
+             </ul>  
+          </mat-expansion-panel>
+      </div>
+      <div class="clear_filter_tab" [style.display]="filter_no == 4 ? 'block' : 'none'">
+        <ul> 
+          <mat-expansion-panel [expanded]="false">               
+               <mat-expansion-panel-header>
+               <a href="javascript:void(0)">All Task</a>
+               </mat-expansion-panel-header>
+          <div class="scheduled-items">
+            <ng-container *ngFor="let task of filterTasks">
+              <div class="squaredThree" [ngClass]="{
+                            checked: task.status != undefined ? task.status : false
+                          }">
+                <span  [ngClass] ="{task_start :task.state == 0, task_stop :task.state == 1}" class="ts_status" (click)="onStartTime(task, task.state)"style="margin-right: 0px;float: left;width: 29px; margin-top: 3px;">
+                  </span>
+                <input type="checkbox" value="1" id="" name="check[]" [(ngModel)]="task.status" />
+                <label for="1" [ngClass]="{
+                              pr1: task.priority == 1,
+                              pr2: task.priority == 2,
+                              pr3: task.priority == 3,
+                              pr4: task.priority == 4
+                            }" class="draggable-filter-item" (click)="toggleCheckBox(task, 4)" style="left:12%;"></label>
+                  <span class="taskname">{{ task.name }}</span>
+                
+                <div class="menu_option hover-dotted">
+                  <img src="assets/images/detail-icon.png" />
+                  <div class="popup">
+                    <li *ngIf="task.timelog.length == 0">
+                      <div class="delete-btn" (click)="deleteTasks(task, filter_no)">
+                        <i class="fa fa-trash"></i>Delete
+                      </div>
+                    </li>
+                    <li *ngIf="task.timelog.length > 0">
+                      <div class="delete-btn" (click)="archiveTasks(task, filter_no)">
+                        <i class="fa fa-archive"></i>Archive
+                      </div>
+                    </li>
+
+                    <li class="priority">
+                      <div class="priority_lable">Priority</div>
+                      <div class="priority_element">
+                        <div title="Critical" (click)="onSetPriorityItem(task, 1, filter_no)"
+                          [ngClass]="task.priority == 1 ? 'new_pr' : ''">
+                          <img src="/assets/images/p1.png" />
+                        </div>
+                        <div title="High" (click)="onSetPriorityItem(task, 2, filter_no)"
+                          [ngClass]="task.priority == 2 ? 'new_pr' : ''">
+                          <img src="/assets/images/p2.png" />
+                        </div>
+                        <div title="Medium" (click)="onSetPriorityItem(task, 3, filter_no)"
+                          [ngClass]="task.priority == 3 ? 'new_pr' : ''">
+                          <img src="/assets/images/p3.png" />
+                        </div>
+                        <div title="Low" (click)="onSetPriorityItem(task, 4, filter_no)"
+                          [ngClass]="task.priority == 4 ? 'new_pr' : ''">
+                          <img src="/assets/images/p4.png" />
+                        </div>
+                      </div>
+                    </li>
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+          </div>
+          </mat-expansion-panel>
+        </ul>
+      </div>
+      <div class="completed_filter_tab" [style.display]="completedTaskDisplay == 1 ? 'block' : 'none'">
+        <ul> 
+          <mat-expansion-panel [expanded]="false">               
+               <mat-expansion-panel-header>
+                <img src="assets/images/check.png" />
+               <a href="javascript:void(0)">Completed</a>
+               </mat-expansion-panel-header>        
+            <ul>
+              <div class="scheduled-items">
+                <ng-container *ngFor="let task of tasks_completed">
+                  <div class="squaredThree " [ngClass]="{checked:task.status != undefined ? task.status : false}">
+                    <input type="checkbox" value="1" id="" name="check[]" [(ngModel)]="task.status" />
+                    <label for="1" (click)="toggleCheckBox(task)"></label>
+                     <span class="taskname">{{task.status == 3 ? '(No arvchived)' : task.status == 4 ? '(No Later)' : task.status == 5 ? '(No Reassigned)':task.status == 6 ? '(Yes)' : task.status == 7 ? '(Archived)' : '' }}  {{ task.name }}</span>
+                  </div>
+                </ng-container>
+              </div>
+            </ul>       
+          </mat-expansion-panel>
+        </ul>
+      </div>
+      <div class="archive_filter_tab" [style.display]="archiveTasksDisplay == 1 ? 'block' : 'none'">
+        <ul> 
+          <mat-expansion-panel [expanded]="false">               
+               <mat-expansion-panel-header>
+                <img src="assets/images/archive.png" />
+               <a href="javascript:void(0)">Archive</a>
+               </mat-expansion-panel-header>        
+            <ul>
+              <div class="scheduled-items">
+                <ng-container *ngFor="let task of tasks_archive">
+                  <div class="squaredThree " [ngClass]="{checked:task.status != undefined ? task.status : false}">
+                    <input type="checkbox" value="1" id="" name="check[]" [(ngModel)]="task.status" />
+                    <label for="1" (click)="unarchive(task)">
+                    </label>
+                    <span class="taskname">{{ task.name }}</span>
+                  </div>
+                </ng-container>
+              </div>
+            </ul>       
+          </mat-expansion-panel>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</div>
+<div class="middle-calender-search">
+  <!-- <img src="assets/images/middle-image.png" alt="calender master"> -->
+  <div class="current-process">
+    <h2 style="color: green;font-style: italic;display: inline-block;width:91%;">What you’re doing!</h2>
+    <button type="button" class="btn btn-primary" (click)="openConfirmDialog(value='')">Add</button>
+    <ul>
+      <div class="scheduled-items">
+        <ng-container *ngFor="let task of tasks">
+          <div class="squaredThree" [ngClass]="{
+                  checked: task.status != undefined ? task.status : false
+                }" *ngIf="task.state == 1">
+            <span class="ts_status task_stop" (click)="onStartTime(task, 1)"
+              style="margin-right: 0px;float: left;width: 29px; margin-top: 3px;"></span>
+            <input type="checkbox" value="1" id="" name="check[]" [(ngModel)]="task.status" />
+            <label for="1" [ngClass]="{
+                    pr1: task.priority == 1,
+                    pr2: task.priority == 2,
+                    pr3: task.priority == 3,
+                    pr4: task.priority == 4
+                  }" class="draggable-filter-item" (click)="toggleCheckBox(task, 4)">
+              </label>
+               <span class="taskname">{{ task.name }}</span>            
+          </div>
+        </ng-container>
+      </div>
+    </ul>   
+  </div>
+  <div class="time-bot">
+      <div class="tab clearfix">
+        <ul class="nav nav-tabs side_nav" role="tablist">
+          <li *ngFor="let tab of tabs; let first = first;" [ngClass]="{firstItem: first}" role="presentation" class="accounts_li" [class.active]="selectedindex===tab">
+            <a (click)="hasTab(tab)" aria-controls="one" role="tab" data-toggle="tab">{{tab}}</a>
+          </li>
+        </ul>
+        </div>  
+  <div class="tab-content">
+    <div *ngIf="selectedindex === tabs[0]" role="tabpanel" class="tab-pane active" id="one">           
+            <div class="header_action">
+              Selelct : <input type="text" ngxDaterangepickerMd startKey="start" endKey="end" [ranges]="timelineranges" [showCustomRangeLabel]="true" [alwaysShowCalendars]="true" [locale]="{applyLabel: 'ok', format: 'MM/DD/YYYY'}" [autoApply]="true" class="input timelinerange" (change)="timelinechange($event)" id="reportrange" showCancel="true" [showRangeLabelOnInput] ="false">
+            </div>
+            <daypilot-scheduler [config]="config_timesheet" [events]="timeevents" #timesheet id='dp'></daypilot-scheduler>
+    </div>
+    <div *ngIf="selectedindex === tabs[1]" role="tabpanel" class="tab-pane active" id="two">
+      <div class="alert alert-success" [style.display]="sucessMsg == 1 ? 'block' : 'none'"><span class="succssmsg"></span><span class="closebtn" (click)="hide_msg()">&times;</span>
+      </div>
+      <div class="header_action">
+        <button type="button" class="btn btn-primary" (click)="openConfirmDialog(value='')">Add</button>
+        <button type="button" class="btn btn-danger" (click)="remove()" [style.display]="updateDisplay == 1 ? 'block' : 'none'">Delete/Archive</button>
+        <select (change)="multiupdateValue(c.value,'cate')" #c class="updatecate select" value="updateCate" [style.display]="updateDisplay == 1 ? 'block' : 'none'">
+        <option value="">Update Category</option>
+            <option *ngFor="let key of category" [value]="key.value">{{
+              key.label}}
+            </option>                
+        </select>
+         <select (change)="multiupdateValue(p.value,'pr')" #p class="updatecate select" [style.display]="updateDisplay == 1 ? 'block' : 'none'">
+        <option value="">Update Priority</option>
+            <option [value]="1">Critical</option>
+            <option [value]="2">High</option>
+            <option [value]="3">Medium</option>
+            <option [value]="4">Low</option>             
+        </select>            
+      </div>
+      <ngx-datatable          
+        class="material"
+        [rows]="manage_rows"
+        [columnMode]="'force'"
+        [headerHeight]="50"
+        [footerHeight]="50"
+        [rowHeight]="'auto'"
+        [limit]="10"
+        [selected]="selected"
+        [selectionType]="'checkbox'"
+        [selectAllRowsOnPage]="false"
+        [displayCheck]="displayCheck"
+        (activate)="onActivate($event)"
+        (select)='onSelect($event)'>
+             
+        <ngx-datatable-column
+          [width]="30"
+          [sortable]="false"
+          [canAutoResize]="false"
+          [draggable]="false"
+          [resizeable]="false"
+          [headerCheckboxable]="true"
+          [checkboxable]="true"
+          class="material"
+          >
+        </ngx-datatable-column>
+
+              <!-- <ngx-datatable-column name="Task"></ngx-datatable-column> -->
+        <ngx-datatable-column name="Task">
+          <ng-template ngx-datatable-cell-template let-rowIndex="rowIndex" let-value="value" let-row="manage_rows">
+              <span
+              title="Double click to edit"
+              (dblclick)="editing[rowIndex + '-task'] = true"
+              *ngIf="!editing[rowIndex + '-task']">
+              {{value}}
+            </span>
+            <input
+            autofocus
+            (blur)="updateValue($event, 'task', rowIndex,manage_rows[rowIndex],'taskname')"
+            *ngIf="editing[rowIndex+ '-task']"
+            type="text"
+            [value]="value"
+            />
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="Description">
+          <ng-template ngx-datatable-cell-template let-rowIndex="rowIndex" let-value="value" let-row="manage_rows">
+          <span
+            title="Double click to edit"
+            (dblclick)="editing[rowIndex + '-description'] = true"
+            *ngIf="!editing[rowIndex + '-description']">
+            {{value}}
+          </span>
+          <span
+            title="Double click to edit"
+            (dblclick)="editing[rowIndex + '-description'] = true"
+            *ngIf="value == '' && !editing[rowIndex + '-description']">
+            <i class="fa fa-pencil-square-o" aria-hidden="true" title="Double click to edit"></i>
+          </span> 
+          <input
+            autofocus
+            (blur)="updateValue($event, 'description', rowIndex,manage_rows[rowIndex],'description')"
+            *ngIf="editing[rowIndex+ '-description']"
+            type="text"
+            [value]="value"
+          />
+           </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="Category" [width]="210">
+          <ng-template ngx-datatable-cell-template let-rowIndex="rowIndex" let-row="manage_rows" let-value="value">
+            <span
+              title="Double click to edit"
+              (dblclick)="editing[rowIndex + '-category'] = true"
+              *ngIf="!editing[rowIndex + '-category']">
+              {{value}}
+            </span>
+            <select *ngIf="editing[rowIndex + '-category']"
+              (blur)="editing[rowIndex + '-category'] = false"
+              (change)="updateValue($event, 'category', rowIndex,manage_rows[rowIndex],'categoryId')" [value]="value">
+                  <option *ngFor="let key of category" [value]="key.label">{{
+                    key.label}}</option>                
+              </select>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="Priority" [width]="170">
+          <ng-template ngx-datatable-cell-template let-rowIndex="rowIndex" let-row="manage_rows" let-value="value">           
+             <span
+              title="Double click to edit"
+              (dblclick)="editing[rowIndex + '-priority'] = true">
+              <img *ngIf="value != '' && !editing[rowIndex + '-priority']" src="{{getPriority(value)}}"/>
+            </span>
+            <span
+              title="Double click to edit"
+              (dblclick)="editing[rowIndex + '-priority'] = true"
+              *ngIf="value == '' && !editing[rowIndex + '-priority']">
+             <img src="{{getPriority(0)}}"/>
+            </span>
+
+              <select *ngIf="editing[rowIndex + '-priority']"
+              (blur)="editing[rowIndex + '-priority'] = false"
+              (change)="updateValue($event, 'priority', rowIndex,manage_rows[rowIndex],'priorityUp')" [value]="value">
+                  <option [value]="">Select Priority</option>
+                  <option [value]="1">Critical</option>
+                  <option [value]="2">High</option>
+                  <option [value]="3">Medium</option>
+                  <option [value]="4">Low</option> 
+              </select>
+          </ng-template>
+        </ngx-datatable-column>         
+        <ngx-datatable-column name="When Due" [width]="160"></ngx-datatable-column>
+        <ngx-datatable-column name="Frequency" [width]="120"></ngx-datatable-column>
+        <ngx-datatable-column name="Action" [width]="180">          
+          <ng-template #deleteBtn let-value="value"  let-row="manage_rows"  ngx-datatable-cell-template>
+            <div class="d-flex justify-content-center btn btn-sm btn-outline-secondary">
+              <span  [ngClass] ="{task_start :value.state == 0, task_stop :value.state == 1}" class="ts_status" (click)="onStartTime(value, value.state)" title="{{ value.state == 0 ? 'Start' : 'Stop'}}"></span>
+              <i *ngIf="value.timelog.length > 0" (click)="archiveTasks(value,filter_no)" class="fa fa-archive" title="Archive"></i>
+              <i class="fa fa-trash" *ngIf="value.timelog.length === 0" (click)="deleteTasks(value,filter_no)" title="Delete"></i> 
+              <i class="fa fa-clone" (click)="cloneTasks(value,1,0)" title="Clone"></i>
+              <i class="fa fa-clipboard" (click)="cloneTasks(value,2,0)" title="Repeat"></i>
+              <i class="fa fa-pencil-square-o" (click)="openConfirmDialog(value)" aria-hidden="true" title="Edit"></i> 
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+      </ngx-datatable>
+    </div>
+  </div> 
+
+  </div>
+</div>
+<!-- <div class="advertisement-master">
+  <div class="advertise-list">
+    <img src="assets/images/advertise-banner.png" alt="advertise" />
+  </div>
+  <div class="advertise-list">
+    <img src="assets/images/advertise-banner.png" alt="advertise" />
+  </div>
+</div> -->
+
+<div class="clear"></div>
+</div>
+<!--right panel code ends here-->
+</div>
+ 
+
+<!-- master container ends here-->
+<ngx-smart-modal #myBootstrapModal identifier="myBootstrapModal" [closable]="false"
+                 customClass="modal-content no-padding" class="edit-rec">
+   <!-- <pre> Data : {{ myBootstrapModal.getData().category_id | json }}</pre> -->
+  <div class="modal-header">
+    <h5 class="modal-title"><i class="fa fa-pencil-square-o"></i>{{tasklable}}</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="myBootstrapModal.close()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div> 
+  <div class="modal-body">
+  <form  class="edit-form" [formGroup]="edittaskForm" (submit)="onSave()">  
+    <div class="form-group row">
+      <div class="col-12">
+        <input class="form-control input" type="text"  name="task" formControlName="task" [(ngModel)]="task" required placeholder="Task Name">        
+         <span class="errormessage" *ngIf="
+                  edittaskForm.get('task').hasError('required') &&
+                  (edittaskForm.get('task').dirty ||
+                    edittaskForm.get('task').touched)
+                ">Task name is required
+          </span>
+      </div>
+    </div>
+    <div class="form-group row">      
+      <div class="col-6">
+       <select name="categoryID" class="select form-control" [(ngModel)]="categoryID" formControlName="categoryID">
+        <option value="">Select Category</option>
+        <ng-container *ngFor="let key of category">
+          <option  [value]="key.value">{{
+            key.label
+          }}</option>
+        </ng-container>
+      </select>
+      </div>
+      <div class="col-6" >
+        <select class="select form-control" formControlName= "priority" [(ngModel)]="priority">
+          <option [value]="">Select Priority</option>       
+          <option [value]="1">Critical</option>
+          <option [value]="2">High</option>
+          <option [value]="3">Medium</option>
+          <option [value]="4">Low</option> 
+      </select>
+      </div>
+    </div>   
+    <div class="form-group row"> 
+      <div class="col-6" > 
+        <select formControlName="duration" class="select form-control" [(ngModel)]="duration">
+          <option value="">Select Duration</option>       
+          <option [value]="15">15 Min</option>
+          <option [value]="30">30 Min</option>
+          <option [value]="45">45 Min</option>
+          <option [value]="30">1 Hour</option>
+          <option [value]="90">1 Hour 30 Min</option>
+          <option [value]="120">2 Hour</option>
+          <option [value]="180">3 Hour</option>
+          <option [value]="240">4 Hour</option>
+          <option [value]="480">8 Hour</option>
+          <option [value]="720">12 Hour</option>
+          <option [value]="480">24 Hour</option>
+          <option [value]="480"> 24 Hour</option>         
+      </select>
+      </div>
+      <div class="col-6">
+        <select formControlName="dueon" class="select form-control" [(ngModel)]="dueon" id="dueonpopup">
+          <option [value]="1">When Due</option>  
+          <ng-container *ngFor="let key of dueonobj">
+            <option [value]="key.value">
+            {{key.label}}</option>
+          </ng-container>        
+        </select> 
+      </div>
+    </div> 
+    <div class="form-group row" *ngIf="dueon == 7">
+      <div class="col-6">
+         <input type="text" ngxDaterangepickerMd [(ngModel)]="setdueon" [singleDatePicker]="true" [alwaysShowCalendars]="true" [locale]="{applyLabel: 'ok', format: 'MM/DD/YYYY'}" [autoApply]="true" formControlName="setdueon" [showClearButton]="true" placeholder="Select Date" class="select" [minDate]='true'>
+      </div>
+    </div>
+    <div class="form-group row"> 
+      <div class="col-6" > 
+        <select formControlName="discretionary" class="select form-control" [(ngModel)]="discretionary">
+          <option value="">Select Discretionary</option>       
+          <option [value]="1">Yes</option>
+          <option [value]="0">No</option>     
+        </select>
+      </div>
+      <div class="col-6">
+        <select formControlName="routine" class="select form-control" [(ngModel)]="routine">
+          <option [value]="">Select Routine</option>       
+          <option [value]="1">Yes</option>
+          <option [value]="0">No</option>     
+        </select>
+      </div>
+    </div> 
+    <div class="form-group row">
+      <div class="col-12">
+        <input class="form-control input" type="text" placeholder="Description" formControlName="description" [(ngModel)]="description">
+      </div>
+    </div>
+    <div class="form-group row"> 
+      <div class="col-6" > 
+        <select formControlName="frequency" class="select form-control" [(ngModel)]="frequency">
+          <option [value]="">Select Frequency</option>       
+          <option [value]="1">Daily</option>
+          <option [value]="2">Weekly</option> 
+          <option [value]="3">Monthly</option>
+        </select>
+      </div>
+      <div class="col-6">
+      </div>
+    </div>
+    <div class="form-group row">
+      
+      <div class="col-6" *ngIf="frequency == 1">
+         <select name="starttime" formControlName="starttime" class="select form-control" [(ngModel)]="starttime">
+          <option [value]="">When</option>  
+          <ng-container *ngFor="let key of times">
+            <option [value]="key">{{key}}</option>
+          </ng-container>           
+        </select> 
+      </div>
+      <div class="col-6" *ngIf="frequency == 2">
+        <div class="weekDays-selector">
+          <ng-container *ngFor="let list of repeatdayboxes">
+          <input type="checkbox" id="{{ list.id }}" class="weekday" [value]="list.id" 
+          (change)="onCheckboxChange(list,$event)" name="{{ list.id }}" [checked]="checkedList.indexOf(list.id) !== -1 ? true : false"/>
+          <label for="{{ list.id }}">{{list.value}}</label>
+         </ng-container> 
+        </div>
+      </div>
+      <div class="col-6" *ngIf="frequency == 3">
+        <select formControlName="repeatday" class="select form-control" [(ngModel)]="repeatday">
+          <option [value]="">When</option> 
+          <ng-container *ngFor="let dummy of ' '.repeat(32).split(''), let x = index">
+            <option  [value]="x" *ngIf="x!= 0">
+            {{x}}</option>
+          </ng-container>           
+        </select> 
+      </div>
+    </div>
+    <input class="form-control" type="hidden" name="taskID" formControlName="taskID" [(ngModel)]="taskID">
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-primary" value="Save changes">Save changes</button>
+      <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="myBootstrapModal.close()">Close
+      </button>
+    </div>
+  </form>   
+     <!--  <pre>{{checkedList}}</pre> -->
+  </div>
+</ngx-smart-modal>

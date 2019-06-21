@@ -1,0 +1,366 @@
+<div class="main">
+  <div class="master-mid">
+  <div class="left-master-search">
+  </div>
+  <div class="middle-calender-search">
+    
+    <ul class="nav nav-tabs side_nav" role="tablist">
+      <li *ngFor="let tab of tabs; let first = first;" [ngClass]="{firstItem: first}" role="presentation" class="accounts_li" [class.active]="selectedindex===tab">
+      <a (click)="plannerSummery(tab)" aria-controls="one" role="tab" data-toggle="tab">{{tab}}</a>
+      </li>
+    </ul>
+    
+    <div class="tab-content">
+      <div *ngIf="selectedindex === tabs[0]" role="tabpanel" class="tab-pane active" id="one">
+        <table role="table" id="planners">
+          <thead role="rowgroup">
+            <tr role="row">
+
+              <th role="columnheader">
+                Category
+              </th>
+              <th role="columnheader">Sunday</th>
+              <th role="columnheader">Monday</th>
+              <th role="columnheader">Tuesday</th>
+              <th role="columnheader">Wedensday</th>
+              <th role="columnheader">Thursday</th>
+              <th role="columnheader">Friday</th>
+              <th role="columnheader">Saturday</th>      
+              <th role="columnheader">Action</th>
+            </tr>
+          </thead>
+          <tbody role="rowgroup">
+            <tr id='datarows'>
+              <td>       
+                <select class="select" id="cat_100">
+                  <option value="">Select Category</option>          
+                  <ng-container *ngFor="let key of category_lists">
+                     <option  *ngIf="key.is_display" [value]="key.value" [value]="key.value">{{ key.label }}</option>
+                  </ng-container>
+                  </select> 
+              </td>
+              <td role="cell">
+                <span id="sun_100">{{changetime(0)}} - {{changetime(0)}}</span>
+                <input type = "hidden" id="sun_start_100" value="0">
+                <input type = "hidden" id="sun_end_100" value="0">
+                <ng5-slider 
+                    id="range_sun_100"
+                    [value]="0"
+                    [highValue]="0"
+                    [options]="options"
+                    (userChangeStart)="onUserChangeStart($event)"            
+                    (userChange)="onUserChange($event,'sunday',100,'0')"
+                    (userChangeEnd)="onUserChangeEnd($event,'sunday',100,'0',100)">
+                     #range_mon_100
+                </ng5-slider>
+              </td>
+              <td role="cell">
+                <span id="mon_100">{{changetime(0)}} - {{changetime(0)}}</span>
+                <input type = "hidden" id="mon_start_100" value="0">
+                <input type = "hidden" id="mon_end_100" value="0">
+                <ng5-slider 
+                    id="range_mon_100"
+                    [value]="0"
+                    [highValue]="0"
+                    [options]="options"           
+                    (userChangeStart)="onUserChangeStart($event)"
+                    (userChange)="onUserChange($event,'monday',100,'1')"
+                    (userChangeEnd)="onUserChangeEnd($event,'monday',100,'1',100)">
+                     #range_mon_100
+                </ng5-slider>
+              </td>
+              <td role="cell">
+                <span id="tue_100">{{changetime(0)}} - {{changetime(0)}}</span>
+                <input type = "hidden" id="tue_start_100" value="0">
+                <input type = "hidden" id="tue_end_100" value="0">
+                <ng5-slider 
+                    id="range_tue_100"
+                    [value]="0"
+                    [highValue]="0"
+                    [options]="options"
+                    (userChangeStart)="onUserChangeStart($event)"
+                    (userChange)="onUserChange($event,'tuesday',100,'2')"
+                    (userChangeEnd)="onUserChangeEnd($event,'tuesday',100,'2',100)">
+                     #range_mon_100
+                </ng5-slider>
+
+              </td>
+                <td role="cell">
+                  <span id="wed_100">{{changetime(0)}} - {{changetime(0)}}</span>
+                  <input type = "hidden" id="wed_start_100" value="0">
+                  <input type = "hidden" id="wed_end_100" value="0">
+                  <ng5-slider 
+                    id="range_wed_100"
+                    [value]="0"
+                    [highValue]="0"
+                    [options]="options"
+                    (userChangeStart)="onUserChangeStart($event)"
+                    (userChange)="onUserChange($event,'wednesday',100,'3')"
+                    (userChangeEnd)="onUserChangeEnd($event,'wednesday',100,'3',100)">
+                     #range_mon_100
+                </ng5-slider>
+              </td>
+              <td role="cell">
+                <span id="thu_100">{{changetime(0)}} - {{changetime(0)}}</span>
+                <input type = "hidden" id="thu_start_100" value="0">
+                <input type = "hidden" id="thu_end_100" value="0">
+               <ng5-slider 
+                    id="range_thu_100"
+                    [value]="0"
+                    [highValue]="0"
+                    [options]="options"
+                    (userChangeStart)="onUserChangeStart($event)"
+                    (userChange)="onUserChange($event,'thursday',100,'4')"
+                    (userChangeEnd)="onUserChangeEnd($event,'thursday',100,'4',100)">
+                     #range_mon_100
+                </ng5-slider>
+              </td>
+              <td role="cell">
+                <span id="fri_100">{{changetime(0)}} - {{changetime(0)}}</span>
+                <input type = "hidden" id="fri_start_100" value="0">
+                <input type = "hidden" id="fri_end_100" value="0">
+                <ng5-slider 
+                    id="range_fri_100"
+                    [value]="0"
+                    [highValue]="0"
+                    [options]="options"
+                    (userChangeStart)="onUserChangeStart($event)"
+                    (userChange)="onUserChange($event,'friday',100,'5')"
+                    (userChangeEnd)="onUserChangeEnd($event,'friday',100,'5',100)">
+                     #range_mon_100
+                </ng5-slider>
+              </td>
+              <td role="cell">
+                <span id="sat_100">{{changetime(0)}} - {{changetime(0)}}</span>
+                <input type = "hidden" id="sat_start_100" value="0">
+                <input type = "hidden" id="sat_end_100" value="0">
+                <ng5-slider 
+                    id="range_sat_100"
+                    [value]="0"
+                    [highValue]="0"
+                    [options]="options"
+                    (userChangeStart)="onUserChangeStart($event)"
+                    (userChange)="onUserChange($event,'saturday',100,'6')"
+                    (userChangeEnd)="onUserChangeEnd($event,'saturday',100,'6',100)">
+                     #range_mon_100
+                </ng5-slider>
+              </td>
+              
+              <td role="cell"> 
+             <button type="button" mdbBtn color="danger" rounded="true" size="sm" class="add" (click) = 'addItem($event,100)'></button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="alertmsg">
+          <span class="closebtn" (click)="hide_msg()">&times;</span>
+          <span class="msg" id="msg"></span>
+        </div>
+        <table role="table" id="planners">
+          <thead role="rowgroup">
+            <tr role="row">
+              <th role="columnheader">Category</th>
+              <th role="columnheader">Sunday</th>
+              <th role="columnheader">Monday</th>
+              <th role="columnheader">Tuesday</th>
+              <th role="columnheader">Wedensday</th>
+              <th role="columnheader">Thursday</th>
+              <th role="columnheader">Friday</th>
+              <th role="columnheader">Saturday</th>      
+              <th role="columnheader">Action</th>
+            </tr>
+          </thead>
+          <tbody role="rowgroup">
+            <tr id='datarow' *ngFor="let row of rowList; let id = index" id="{{ row.rowID }}">
+              <td>    
+                <input type="hidden" id="cat_{{id}}" value="{{row.categoryID}}">
+                 {{row.cate_name}}
+              </td>
+              <td role="cell">
+                <span id="sun_{{id}}">{{changetime(row.timelog[0].start)}} - {{changetime(row.timelog[0].end)}}</span>
+                <ng5-slider 
+                    id="range_sun_{{id}}"
+                    [value]="row.timelog[0].start"
+                    [highValue]="row.timelog[0].end"
+                    [options]="options"
+                    (userChangeStart)="onUserChangeStart($event)"
+                    (userChange)="onUserChange($event,'sunday',id,'0')"
+                    (userChangeEnd)="onUserChangeEnd($event,'sunday',id,'0',row.rowID)">
+                     #range_mon_{{id}}
+                </ng5-slider>
+              </td>
+              <td role="cell">
+                <span id="mon_{{id}}">{{changetime(row.timelog[1].start)}} - {{changetime(row.timelog[1].end)}}</span>
+                <ng5-slider 
+                    id="range_mon_{{id}}"
+                    [value]="row.timelog[1].start"
+                    [highValue]="row.timelog[1].end"
+                    [options]="options"
+                    (userChangeStart)="onUserChangeStart($event)"
+                    (userChange)="onUserChange($event,'monday',id,'1')"
+                    (userChangeEnd)="onUserChangeEnd($event,'monday',id,'1',row.rowID)">
+                     #range_mon_{{id}}
+                </ng5-slider>
+              </td>
+              <td role="cell">
+                <span id="tue_{{id}}">{{changetime(row.timelog[2].start)}} - {{changetime(row.timelog[2].end)}}</span>
+                <ng5-slider 
+                    id="range_tue_{{id}}"
+                    [value]="row.timelog[2].start"
+                    [highValue]="row.timelog[2].end"
+                    [options]="options"
+                    (userChangeStart)="onUserChangeStart($event)"
+                    (userChange)="onUserChange($event,'tuesday',id,'2')"
+                    (userChangeEnd)="onUserChangeEnd($event,'tuesday',id,'2',row.rowID)">
+                     #range_mon_{{id}}
+                </ng5-slider>
+              </td>
+                <td role="cell">
+                  <span id="wed_{{id}}">{{changetime(row.timelog[3].start)}} - {{changetime(row.timelog[3].end)}}</span>
+                  <ng5-slider 
+                    id="range_wed_{{id}}"
+                    [value]="row.timelog[3].start"
+                    [highValue]="row.timelog[3].end"
+                    [options]="options"
+                    (userChangeStart)="onUserChangeStart($event)"
+                    (userChange)="onUserChange($event,'wednesday',id,'3')"
+                    (userChangeEnd)="onUserChangeEnd($event,'wednesday',id,'3',row.rowID)">
+                     #range_mon_{{id}}
+                </ng5-slider>
+              </td>
+              <td role="cell">
+                <span id="thu_{{id}}">{{changetime(row.timelog[4].start)}} - {{changetime(row.timelog[4].end)}}</span>
+               <ng5-slider 
+                    id="range_thu_{{id}}"
+                    [value]="row.timelog[4].start"
+                    [highValue]="row.timelog[4].end"
+                    [options]="options"
+                    (userChangeStart)="onUserChangeStart($event)"
+                    (userChange)="onUserChange($event,'thursday',id,'4')"
+                    (userChangeEnd)="onUserChangeEnd($event,'thursday',id,'4',row.rowID)">
+                     #range_mon_{{id}}
+                </ng5-slider>
+              </td>
+              <td role="cell">
+                <span id="fri_{{id}}">{{changetime(row.timelog[5].start)}} - {{changetime(row.timelog[5].end)}}</span>
+                <ng5-slider 
+                    id="range_fri_{{id}}"
+                    [value]="row.timelog[5].start"
+                    [highValue]="row.timelog[5].end"
+                    [options]="options"
+                    (userChangeStart)="onUserChangeStart($event)"
+                    (userChange)="onUserChange($event,'friday',id,'5')"
+                    (userChangeEnd)="onUserChangeEnd($event,'friday',id,'5',row.rowID)">
+                     #range_mon_{{id}}
+                </ng5-slider>
+              </td>
+              <td role="cell">
+                <span id="sat_{{id}}">{{changetime(row.timelog[6].start)}} - {{changetime(row.timelog[6].end)}}</span>
+                <ng5-slider 
+                    id="range_sat_{{id}}"
+                    [value]="row.timelog[6].start"
+                    [highValue]="row.timelog[6].end"
+                    [options]="options"
+                    (userChangeStart)="onUserChangeStart($event)"
+                    (userChange)="onUserChange($event,'saturday',id,'6')"
+                    (userChangeEnd)="onUserChangeEnd($event,'saturday',id,'6',row.rowID)">
+                     #range_mon_{{id}}
+                </ng5-slider>
+              </td>      
+              <td role="cell"> 
+             <button type="button" mdbBtn color="danger" rounded="true" size="sm" class="close" (click)="remove(row)"></button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+      </div>
+      <div *ngIf="selectedindex === tabs[1]" role="tabpanel" class="tab-pane active" id="two">
+        <table role="table" id="summeryplanners">
+          <thead role="rowgroup">
+            <tr role="row">
+              <th role="columnheader">
+                Category
+              </th>
+              <th role="columnheader">Sunday</th>
+              <th role="columnheader">Monday</th>
+              <th role="columnheader">Tuesday</th>
+              <th role="columnheader">Wedensday</th>
+              <th role="columnheader">Thursday</th>
+              <th role="columnheader">Friday</th>
+              <th role="columnheader">Saturday</th>      
+              <th role="columnheader">Weekly Plan</th>
+            </tr>
+           </thead>
+           <tbody role="rowgroup">
+           <tr id='datarow' *ngFor="let row of summery; let id = index">
+              <td>       
+                {{row[0]}}
+              </td>
+              <td role="cell">
+                <span id="sun_{{id}}">{{timeConvert(row[1].sun)}}</span>                
+              </td>
+              <td role="cell">
+                <span id="mon_{{id}}">{{timeConvert(row[1].mon)}}</span>               
+              </td>
+              <td role="cell">
+                <span id="tue_{{id}}">{{timeConvert(row[1].tue)}}</span>
+              </td>
+                <td role="cell">
+                  <span id="wed_{{id}}">{{timeConvert(row[1].wed)}}</span>                  
+              </td>
+              <td role="cell">
+                <span id="thu_{{id}}">{{timeConvert(row[1].thu)}}</span>               
+              </td>
+              <td role="cell">
+                <span id="fri_{{id}}">{{timeConvert(row[1].fri)}}</span>                
+              </td>
+              <td role="cell">
+                <span id="sat_{{id}}">{{timeConvert(row[1].sat)}}</span>
+              </td>      
+              <td role="cell">
+              <span id="sat_{{id}}"> 
+                 {{timeConvert(row[1].sun + row[1].mon + row[1].tue +row[1].wed +row[1].thu + row[1].fri + row[1].sat)}}  </span>      
+              </td>
+           </tr>  
+
+           <tr id='datarow'  *ngFor="let row of totalHours; let id = index">
+              <td>       
+                Total Hours
+              </td>
+              <td role="cell">
+                <span id="sun_{{id}}">{{timeConvert(row[0])}}</span>                
+              </td>
+              <td role="cell">
+                <span id="mon_{{id}}">{{timeConvert(row[1])}}</span>               
+              </td>
+              <td role="cell">
+                <span id="tue_{{id}}">{{timeConvert(row[2])}}</span>
+              </td>
+                <td role="cell">
+                  <span id="wed_{{id}}">{{timeConvert(row[3])}}</span>                  
+              </td>
+              <td role="cell">
+                <span id="thu_{{id}}">{{timeConvert(row[4])}}</span>               
+              </td>
+              <td role="cell">
+                <span id="fri_{{id}}">{{timeConvert(row[5])}}</span>                
+              </td>
+              <td role="cell">
+                <span id="sat_{{id}}">{{timeConvert(row[6])}}</span>
+              </td>      
+              <td role="cell">
+              <span id="sat_{{id}}"> 
+                 {{timeConvert(row[0] + row[1] + row[2] +row[3] +row[4] + row[5] + row[6])}}  </span>      
+              </td>
+           </tr> 
+         </tbody>
+        </table> 
+
+      </div>
+    </div>
+      
+  </div>
+</div>
+ </div>
+

@@ -1,0 +1,6 @@
+.parent_cat{
+	display: inline-flex;
+}
+.child_cate{}
+.form_input{display: grid;}
+.inputsearch{margin: 5px 0 12px 0 !important ;display: inline-block !important;}
