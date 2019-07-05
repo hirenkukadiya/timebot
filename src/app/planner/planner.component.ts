@@ -46,7 +46,7 @@ import * as $ from 'jquery';
 })
 export class PlannerComponent implements OnInit {
   public form: FormGroup;
-  category_lists: Task[] = [];
+  category_lists: Category[] = [];
   category: any;
   items:any;
   rowId:any;
@@ -67,43 +67,57 @@ export class PlannerComponent implements OnInit {
   tabs: string[] = ['Details','Summary'];
   selectedindex = this.tabs[0];
   validate = 0;
-
-  rowList: Array<any> = [
-    { id: 1, name: 'Aurelia Vega', age: 30, companyName: 'Deepends', country: 'Spain', city: 'Madrid' }
-  ];
-  awaitingRowList: Array<any> = [
-    { id: 6, name: 'George Vega', age: 28, companyName: 'Classical', country: 'Russia', city: 'Moscow' },
-    { id: 6, name: 'George Vega', age: 28, companyName: 'Classical', country: 'Russia', city: 'Moscow' }
-  ];
-
+  userID:string;
+  rowList: Array<any> = [];
+  
   constructor(private taskService: TaskService,
     private fb: FormBuilder,
     private plannerservice: PlannerService,
     private authService: AuthService,
     private _eventEmiter: EventEmiterService
-    ) {}
+    ) {
+
+    this._eventEmiter.dataStr.subscribe(data => {
+      this.getEventResponse(data);
+    });
+  }
   ngOnInit() {
     this.getCategory();
     this.getdatarow();
     this.getUpdateddatarow();
   }
+
   getCategory(): void {
     this.taskService.getCategory().subscribe(category => {
       this.filterCategroy(category);
     });
+  } 
+  getEventResponse(data) {   
+    var userdata = this.authService.getUser();
+    if(userdata){
+      this.userID = userdata['_id'];    
+    } 
+    if (
+    (data.user_signin != undefined && data.user_signin == true) ||
+    (data.user_signout != undefined && data.user_signout == true)
+    ) {
+       console.log('Another login', data);
+       this.getCategory();
+    }
   }
-
+  
   filterCategroy(category) {
     let category_list = [];
     for (let index in category) {
       let cate = category[index];
-
-      category_list.push({
-          value: cate.categoryID,
-          label: cate.name,
-          index: cate.index,
-          is_display:(cate.name == "unassinged")? false:true
-      });
+      if(cate.parent == "" || cate.parent == undefined ){
+        category_list.push({
+            value: cate.categoryID,
+            label: cate.name,
+            index: cate.index,
+            is_display:(cate.name == "unassinged")? false:true
+        });
+      }
     }    
     category_list.sort(function(a,b){
       if(a.label < b.label) { return -1; }
@@ -113,13 +127,12 @@ export class PlannerComponent implements OnInit {
     this.category_lists = category_list;
   }
   getdatarow(): void {
-    //console.log("get tasks...");
     this.plannerservice.getData().subscribe(planner => {
-      //console.log("view not update ", planner);
       this.filterData(planner);
     });
   }
   filterData(data){   
+
     let cate = [];
     for (let cat in this.category_lists) {
       cate[this.category_lists[cat]['value']] = this.category_lists[cat]['label'];
@@ -233,7 +246,6 @@ export class PlannerComponent implements OnInit {
         }       
         if (this.authService.isAuthenticate()) {
           this.plannerservice.updateData({rowID} as Planner,{ timelog } as any,dayIndex as any,cate_id as any).subscribe(hero => {
-            console.log("Add Data sucessfulluy");
              this.getUpdateddatarow();
           });
         } else {
@@ -315,7 +327,7 @@ export class PlannerComponent implements OnInit {
     }
     var dayIndex = day;
     var cate_id = $('#cat_'+rowid+'').val();
-    console.log('Category', cate_id);
+   // console.log('Category', cate_id);
     if(cate_id == 'Select Category'){
       cate_id = "";
     }
@@ -324,7 +336,8 @@ export class PlannerComponent implements OnInit {
       if (this.authService.isAuthenticate()) {
         var rowID = rows_ID;
         this.plannerservice.updateData({rowID} as Planner,{ timelog } as any,dayIndex as any,cate_id as any).subscribe(hero => {
-          console.log("Add Data sucessfulluy");
+          this.getdatarow();
+          this.getUpdateddatarow();
         });
       } else {
         this._eventEmiter.sendMessage({ signin: true });
@@ -365,24 +378,21 @@ export class PlannerComponent implements OnInit {
       var sat_start = $('#sat_start_'+rowid).val();
       var sat_end = $('#sat_end_'+rowid).val();
         
-      var timelog : Array<any> = [        
-        { "start": mon_start, "end": mon_end},
-        { "start": tue_start, "end": tue_end},
-        { "start": wed_start, "end": wed_end},
-        { "start": thu_start, "end": thu_end},
-        { "start": fri_start, "end": fri_end},
-        { "start": sat_start, "end": sat_end},
-        { "start": sun_start, "end": sun_end},
-        ];
+      var timelog : Array<any> = [ 
+          { "start": sun_start, "end": sun_end},       
+          { "start": mon_start, "end": mon_end},
+          { "start": tue_start, "end": tue_end},
+          { "start": wed_start, "end": wed_end},
+          { "start": thu_start, "end": thu_end},
+          { "start": fri_start, "end": fri_end},
+          { "start": sat_start, "end": sat_end},        
+      ];
       if (this.authService.isAuthenticate()) {
         var rowID = "";      
         this.plannerservice.addRow({rowID} as Planner,{ timelog } as any,cate_id as any).subscribe(hero => {
-          console.log('Add Daata');
-        });      
-        setTimeout(() => {
-          this.getdatarow();
-        }, 500);
-        this.getUpdateddatarow();
+           this.getdatarow();
+           this.getUpdateddatarow();
+        });
       } else {
         this._eventEmiter.sendMessage({ signin: true });
       }
@@ -555,19 +565,19 @@ export class PlannerComponent implements OnInit {
         let fri_minute = 0; 
         let sat_minute = 0;
         for (let i in newdata) {
-           sun_hours += newdata[i][6].end-newdata[i][6].start;           
+           sun_hours += newdata[i][0].end-newdata[i][0].start;           
            catewiseTimeLog[j]['sun'] = sun_hours; 
-           mon_hour += newdata[i][0].end-newdata[i][0].start;           
+           mon_hour += newdata[i][1].end-newdata[i][1].start;           
            catewiseTimeLog[j]['mon'] = mon_hour;
-           tue_hour += newdata[i][1].end-newdata[i][1].start;           
+           tue_hour += newdata[i][2].end-newdata[i][2].start;           
            catewiseTimeLog[j]['tue'] = tue_hour;
-           wed_hour += newdata[i][2].end-newdata[i][2].start;           
+           wed_hour += newdata[i][3].end-newdata[i][3].start;           
            catewiseTimeLog[j]['wed'] = wed_hour;
-           thu_hour += newdata[i][3].end-newdata[i][3].start;           
+           thu_hour += newdata[i][4].end-newdata[i][4].start;           
            catewiseTimeLog[j]['thu'] = thu_hour;
-           fri_hour += newdata[i][4].end-newdata[i][4].start;           
+           fri_hour += newdata[i][5].end-newdata[i][5].start;           
            catewiseTimeLog[j]['fri'] = fri_hour;
-           sat_hour += newdata[i][5].end-newdata[i][5].start;           
+           sat_hour += newdata[i][6].end-newdata[i][6].start;           
            catewiseTimeLog[j]['sat'] = sat_hour;
         }        
         }         
@@ -625,9 +635,10 @@ export class PlannerComponent implements OnInit {
     return rhours + "." + rminutes;
   }
   getCategoryName(cateId){
+    
     let cate = [];
     for (let cat in this.category_lists) {
-      cate[this.category_lists[cat]['categoryID']] = this.category_lists[cat]['name'];
+      cate[this.category_lists[cat]['value']] = this.category_lists[cat]['label'];
     }
     return cate[cateId];
   }

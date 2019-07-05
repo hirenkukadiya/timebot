@@ -17,11 +17,12 @@ export class Task {
   duration: number;
   dueon: string;
   setDate: number;
-  discretionary: boolean;
-  routine: boolean;
+  discretionary: number;
+  routine: number;
   frequency:number;
   repeatday:string;
   starttime:string;
   modifiedON:any;
   enddate:any;
+  parenttask:string;
 }

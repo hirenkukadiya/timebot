@@ -26,6 +26,7 @@ body.dialog-open {
   .overlay.nsm-overlay-open {
     background-color: rgba(0, 0, 0, 0.5); 
     pointer-events: inherit;
+    opacity: 1;
   }
   .overlay.transparent {
     background-color: transparent; }
@@ -248,8 +249,10 @@ body.dialog-open {
 }
 .btn-primary{
   color: #fff;
-  background-color: #007bff;
-  border-color: #007bff;
+  background: #ea4d5b;
+}
+.btn-primary:hover{
+  background: #ef7680;
 }
 .btn-secondar{
   color: #fff;

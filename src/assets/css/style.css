@@ -296,8 +296,11 @@ header nav ul li a.activeSmall {
   cursor: pointer;
   font-size: 17px;
   font-weight: 400;
+  border-radius: .25rem;
 }
-
+.add-items:hover{
+  background: #ef7680;
+}
 .inputsearch {
   border: 1px solid #ececec;
   background: #f8f8f8;
@@ -435,10 +438,15 @@ header nav ul li a.activeSmall {
 }
 
 .errormessage {
-  font-size: 12px;
-  color: #ff0000;
+  font-size: 16px;
   font-weight: 400;
   text-align: center;
+  background-color: #ea4d5b;
+  border-color: #abe7ed;
+  color: #fff;
+  margin-bottom: 10px !important;
+  margin-top: 0px !important;
+  line-height: 25px;
 }
 
 .inputsearch {
@@ -847,6 +855,7 @@ header nav ul li.user:hover ul li a:hover {
   max-height: 100vh;
   overflow-y: auto;
   z-index: 1;
+  opacity: 0;
 }
 
 .overlay.open {
@@ -859,7 +868,7 @@ header nav ul li.user:hover ul li a:hover {
   text-align: center;
   padding: 20px 0;
   box-shadow: 0px 1px 10px rgba(255, 255, 255, 0.35);
-  opacity: 0;
+ /* opacity: 0;*/
   pointer-events: none;
   transition: 0.35s ease-in-out;
   max-height: 100vh;
@@ -1676,24 +1685,13 @@ label {
     float: left;
     margin: 0px 0 0 7px !important;
 }
-/*
-.checkboxFour input[type=checkbox]:after {
-    content: " ";
-    background-color: #fff;
-    display: inline-block;
-    color: #00BFF0;
-    width: 14px;
-    height: 19px;
-    visibility: visible;
-    border: 1px solid #FFF;
-    padding: 0 3px;
-    margin: 2px 0;
-    border-radius: 8px;
-    box-shadow: 0 0 15px 0 rgba(0,0,0,0.08), 0 0 2px 0 rgba(0,0,0,0.16);
-}*/
 .checkboxFour input[type=checkbox]:checked + label{
     background: red;
     border: 1px solid #00BFF0 !important;
+}
+.weekDays-selector{
+  margin-bottom: 12px !important;
+  margin-right: 3px !important;
 }
 .weekDays-selector input {
   display: none!important;
@@ -1702,10 +1700,10 @@ label {
   display: inline-block;
   border-radius: 50%;
   background: #dddddd;
-  height: 27px;
-  width: 27px;
+  height: 24px;
+  width: 24px;
   margin-right: 3px;
-  line-height: 30px;
+  line-height: 25px;
   text-align: center;
   cursor: pointer;
 }
@@ -1713,4 +1711,56 @@ label {
 .weekDays-selector input[type=checkbox]:checked + label {
   background: #2AD705;
   color: #ffffff;
+}
+.form-inline {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+}
+.row-filter .form-control {
+    display: block;
+    width: 100%;
+    height: calc(2.25rem + 2px);
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    display: none;
+    float: left;
+    min-width: 10rem;
+    padding: .5rem 0;
+    margin: .125rem 0 0;
+    font-size: 13.3333px !important;
+    color: #212529;
+    text-align: left;
+    list-style: none;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0,0,0,.15);
+    border-radius: .25rem;
+}
+.dropdown-menu.show {
+    display: block;
+}
+.dropdown button{
+    border: 1px solid #ececec !important;
+    background: #f8f8f8 !important;
+    border-radius: 0px !important;
+    line-height: 30px !important;
+    height: 30px !important;
+    padding: 0 8px !important;
+    margin-bottom: 10px;
+    width: 85% !important;
+    font-size: 13.3333px !important;
 }

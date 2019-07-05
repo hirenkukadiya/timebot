@@ -24,6 +24,9 @@ import {MatTabsModule,MatExpansionModule} from '@angular/material';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { NgxSmartModalModule, NgxSmartModalService } from 'ngx-smart-modal';
 import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
+import { TreeModule } from 'angular-tree-component';
+import { TreeviewModule } from 'ngx-treeview';
+import { ActionComponent } from './action/action.component';
 
 
 @NgModule({
@@ -37,7 +40,8 @@ import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
     CategoryComponent,
     GroupByPipe,
     PlannerComponent,
-    RowsComponent
+    RowsComponent,
+    ActionComponent
   ],
   imports: [
     BrowserModule,
@@ -54,7 +58,9 @@ import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
     MatTabsModule,
     NgxDatatableModule,
     NgxSmartModalModule.forRoot(),
-    NgxDaterangepickerMd.forRoot()
+    NgxDaterangepickerMd.forRoot(),
+    TreeModule.forRoot(),
+    TreeviewModule.forRoot(),
   ],
   providers: [EventEmiterService,{
     provide: HTTP_INTERCEPTORS,

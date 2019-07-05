@@ -33,13 +33,13 @@ export class TaskService {
 
   /** GET tasks from the server */
   getTasks(): Observable<Task[]> {
+
     const url = `${this.tasksUrl}/all`;
     return this.http.get<Task[]>(url).pipe(
-      tap(tasks => this.log("fetched tasks")),
-      catchError(this.handleError("getTasks", []))
+      tap(tasks => this.log("fetched tasks")),      
+      catchError(this.handleError("getTasks", [])),
     );
   }
-
   getTasksID(task: Task): Observable<Task[]> {
     const url = `${this.tasksUrl}/getTask/${task.taskID}`;
     return this.http.post(url, task, httpOptions).pipe(
@@ -47,12 +47,11 @@ export class TaskService {
       catchError(this.handleError<any>("GetTask"))
     );
   }
-
   /** GET Category from the server */
   getCategory(): Observable<Task[]> {
     const url = `${this.cateUrl}/all`;
     return this.http.get<Task[]>(url).pipe(
-      tap(tasks => this.log("fetched category")),
+      tap(category => this.log("fetched category")),
       catchError(this.handleError("getTasks", []))
     );
   }
@@ -68,11 +67,11 @@ export class TaskService {
 
   /** POST: add a new task to the server */
   addTask(task: Task, category): Observable<Task> {
-    console.log("task ", task);
-    console.log("category ", category);
+    //console.log("task ", task);
+    //console.log("category ", category);
     task["category_id"] = category.category_id;
     //return null;
-    console.log('Add Task',task);
+    //console.log('Add Task',task);
     const url = `${this.tasksUrl}/create`;
     return this.http.post<Task>(url, task, httpOptions).pipe(
       tap((task: Task) => this.log(`added task w/ id=${task.taskID}`)),
@@ -83,7 +82,7 @@ export class TaskService {
   addCalendarTask(task: Task, category,timelogs): Observable<Task> {
     task["category_id"] = category.category_id;
     task["timelog"] = timelogs; 
-    task["state"] = 1; 
+    task["state"] = 0; 
     //console.log('Task',task);  
     const url = `${this.tasksUrl}/create`;
     return this.http.post<Task>(url, task, httpOptions).pipe(
@@ -135,7 +134,7 @@ export class TaskService {
 
   /** Log a TaskService message with the MessageService */
   private log(message: string) {
-    //console.log("call log function ");
+    console.log("call log function ");
     this.messageService.add(`TaskService: ${message}`);
   }
   deleteAllTask(task: Task): Observable<Task[]> {

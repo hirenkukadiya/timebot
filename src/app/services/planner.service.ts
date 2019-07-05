@@ -29,7 +29,7 @@ export class PlannerService {
 
    /** POST: add a new task to the server */
  addRow(planner: Planner,timelog,cate_id): Observable<Planner> {
-    //console.log("Planner row ",planner);
+    console.log("Planner row ",planner);
     planner["timelog"] = timelog;
     planner["categoryID"] = cate_id;
     const url = `${this.Url}/create`;
@@ -37,7 +37,7 @@ export class PlannerService {
       tap((planner: Planner) => this.log(`added planner w/ id=${planner.rowID}`)),
       catchError(this.handleError<Planner>("addRow"))
       );
-  }
+  }  
   getData(): Observable<Planner[]> {
     const url = `${this.Url}/all`;
     return this.http.get<Planner[]>(url).pipe(

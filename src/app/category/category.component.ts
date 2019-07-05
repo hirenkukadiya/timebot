@@ -32,6 +32,18 @@ export class CategoryComponent implements OnInit {
   is_add_task: boolean;
   sortableOptions: any;
   categoryID : string;
+  userID:string;
+  cateName : string;
+  parentName : string;
+  parentID:string;
+  cateID:string;
+  edit: boolean = false;
+  showbutton = 0;
+  validationerror=0;
+  nodes = [];
+  options = {
+    allowDrag: false
+  };
 
   constructor(
     private formBuilder: FormBuilder,
@@ -41,19 +53,37 @@ export class CategoryComponent implements OnInit {
     private _eventEmiter: EventEmiterService,
     private orderBy: OrderBy
   ) {
+     this._eventEmiter.dataStr.subscribe(data => {
+      this.getEventResponse(data);
+    });
   }
   ngOnInit() {
     this.createCatForm();
     this.defaultUserLogin();
     this.getCategory();
+    var userdata = JSON.parse(localStorage.user);
+    this.userID = userdata['_id'];
     //this.is_add_task = false;
   }
   createCatForm() {
     this.CategoryForm = this.formBuilder.group({
-      name: ["", Validators.required],
+      name: ["", ""],
       parent: ["", ""],
       parent_name: ["", ""]
     });
+  }
+  getEventResponse(data) {   
+    var userdata = this.authService.getUser();
+    if(userdata){
+      this.userID = userdata['_id'];    
+    } 
+    if (
+    (data.user_signin != undefined && data.user_signin == true) ||
+    (data.user_signout != undefined && data.user_signout == true)
+    ) {
+       console.log('Another login', data);
+       this.getCategory();
+    }
   }
   validateAllFormFields(formGroup: FormGroup) {
     Object.keys(formGroup.controls).forEach(field => {
@@ -78,12 +108,18 @@ export class CategoryComponent implements OnInit {
     var input = {};
     input["task"] = task;
     console.log("input ", input);
-    this.categoryservice.updateTask(task).subscribe(task=>{
-      this.getCategory();
-    });
   }
   addCategory(name: string,parent:string): void {
-    if (this.CategoryForm.valid) {
+    console.log('this.CategoryForm.value',this.CategoryForm.value);
+    
+    if(this.CategoryForm.value.parent_name==undefined || this.CategoryForm.value.parent_name==""){
+      this.validationerror = 2;
+      return;
+    }
+    if (!name) {
+      this.validationerror = 1;
+      return;
+    }    
       this.is_add_task = true;
       if (this.authService.isAuthenticate()) {
         this.is_add_task = false;
@@ -91,29 +127,31 @@ export class CategoryComponent implements OnInit {
         if (!name) {
           return;
         }
-        let parent = "";
+       let parent = "";
        if(this.CategoryForm.value.parent){
           parent = this.CategoryForm.value.parent;
        }
-       //var category_id = "2";
-        this.categoryservice.addTask({name} as Task,{parent} as any).subscribe(hero => {
-          console.log("Add task sucessfulluy");
-          this.resetForm();
-          this.getCategory();
-        });
+       if(this.edit){
+           let categoryID = this.cateID;
+            this.categoryservice.updateCategory(name,categoryID).subscribe(hero=>{
+              this.getCategory();
+            });
+       }else{
+          this.categoryservice.addTask({name} as Task,{parent} as any).subscribe(hero => {
+            this.getCategory();
+            this.resetForm();
+          });
+       }
+        // });
       } else {
         this._eventEmiter.sendMessage({ signin: true });
       }
-    } else {
-      console.log("invlid form");
-      this.validateAllFormFields(this.CategoryForm);
-    }
+    
   }
   defaultUserLogin(): void {}
   getCategory(): void {
     console.log("get category...");
     this.categoryservice.getCategory().subscribe(Category => {
-      //console.log("view updatess ", tasks);
       this.ViewCate(Category);
     });
   }
@@ -122,53 +160,63 @@ export class CategoryComponent implements OnInit {
     let tasks_completed = [];
     for (let index in Category) {
       let cate = Category[index];
-      if (cate.status == 0) {
         cate_list.push(cate);
-      }
     }
     this.categoryList = this.orderBy.transform(cate_list, ["+index"]);
     let data = this.orderBy.transform(cate_list, ["+index"]);
     let newdata = [];
    for (let i = 0; i < data.length; i++) {
     //console.log('data',data[i].categoryID);
-    let tempdata = [];
-    tempdata['cate_name'] = data[i].categoryID;
-    tempdata['cate_id'] = data[i].name;
-    tempdata['child'] = this.getChilTask(data[i].categoryID);
-    newdata.push(tempdata);
+    if(data[i].parent == ""){
+      let tempdata = [];
+      tempdata['id'] = data[i].categoryID;
+      tempdata['name'] = data[i].name;
+      tempdata['children'] = this.getChilCat(data[i].categoryID);
+      newdata.push(tempdata);
+     }
    }
-   this.categoryList
-   console.log('newdata',newdata);
+   this.nodes = newdata;
   }
-  getChilTask(cateId) {
+  getChilCat(cateId) {
+   // console.log('this.userID',this.userID);
     let childrens = [];
     let childrens_ids = {};
     let childrens_next_ids = {};
     let datas = this.categoryList;
+    //console.log('cate_list',datas);
     var data_abd = [];
-
     for (let i = 0; i < datas.length; i++) {
       if (
         datas[i].hasOwnProperty("name") &&
         datas[i].hasOwnProperty("categoryID") &&
-        datas[i]["parent"] === cateId
+        datas[i]["parent"] === cateId && datas[i]["user"]!=undefined && datas[i]["user"]['$id'] == this.userID
       ) {
         var child = {};
         child["name"] = datas[i].name;
         child["id"] = datas[i].categoryID;
-        child["childrens"] = [];
+        child["parentID"] = cateId;
+        child["parentName"] = this.getCategoryName(cateId);
+        child["children"] = this.getChilCat(datas[i].categoryID);
         childrens.push(child);
       }
-    }  
-    //childrens.sort((a, b) => a.index.toString().localeCompare(b.index));
+    }
     return childrens;
   }
   resetForm() {
     this.name = "";
     this.parent = "";
     this.parent_name = "";
+    this.cateName = "";
+    this.parentName = "";
+    this.parentID = "";
+    this.cateID = "";
+    this.showbutton = 0;
     this.CategoryForm.controls.name.markAsUntouched({ onlySelf: true });
     this.CategoryForm.controls.name.markAsPristine({ onlySelf: true });
+    this.CategoryForm.controls.parent.markAsUntouched({ onlySelf: true });
+    this.CategoryForm.controls.parent.markAsPristine({ onlySelf: true });
+    this.edit = false;
+    this.getCategory();
   }
   getCategoryName(cateId){
     let cate = [];
@@ -177,10 +225,51 @@ export class CategoryComponent implements OnInit {
     }
     return cate[cateId];
   }
-  deleteCate(task: Category): void {
-    console.log(" delete cate ",task);
-    this.categoryservice.deletecate(task).subscribe(task=>{
-      this.getCategory();
-    });
+  deleteCate(){
+    let category = new Category();
+    category.categoryID = this.cateID;
+    if(this.parentID!=undefined && this.parentID!="" && this.cateID!=""){
+      this.categoryservice.deletecate(category).subscribe(task=>{
+        this.getCategory();
+        this.resetForm();
+      }); 
+    }
+  }
+  initChildCat(category) {
+    
+    this.cateName = category.name;
+    this.parentName = category.parentName;
+    this.parentID = category.parentID;
+    this.cateID = category.id;
+    
+    if(this.parentID){
+      this.CategoryForm.setValue({
+          name:this.cateName,
+          parent:this.parentID,
+          parent_name :this.parentName,
+      });
+    this.showbutton = 1;  
+    this.edit = true;
+    }else{
+       this.CategoryForm.setValue({
+          name:'',
+          parent:this.cateID,
+          parent_name :this.cateName,
+      });
+     this.edit = false;
+     this.showbutton = 0;
+    }
+    this.validationerror = 0;
+  }
+  addNew(category){
+    this.edit = false;
+    this.cateName = this.cateName;
+    this.parentName = this.parentName;
+    this.parentID = this.parentID;
+    this.CategoryForm.setValue({
+          name:'',
+          parent:this.cateID,
+          parent_name :this.cateName,
+      });
   }
 }

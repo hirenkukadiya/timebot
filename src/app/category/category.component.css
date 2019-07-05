@@ -3,4 +3,26 @@
 }
 .child_cate{}
 .form_input{display: grid;}
-.inputsearch{margin: 5px 0 12px 0 !important ;display: inline-block !important;}
+.inputsearch{margin: 5px 0 12px 0 !important ;display: inline-block !important;width: 200px!important;}
+.addNew{
+	margin-left: 10px;
+    height: 22px;
+    padding: 1px 4px;;
+    background: #ea4d5b;
+   	cursor: pointer;
+    font-size: 17px;
+    font-weight: 400;
+    color: #fff;
+    text-align: center;
+    border-radius: .25rem;
+}
+.addNew:hover{
+  background: #ef7680;
+}
+.errormsg{
+	background-color: #ea4d5b;
+    border-color: #abe7ed;
+    color: #fff;
+    margin-bottom: 6px !important;
+    text-align: center;
+}

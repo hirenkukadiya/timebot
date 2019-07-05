@@ -38,11 +38,12 @@ export class CategoryService {
     );
   }
   /** PUT: update the task on the server */
-  updateTask(task: Task): Observable<any> {
-    const url = `${this.CateUrl}/update/${task.taskID}`;
-    const input = { task: task };
+  updateCategory(category,categoryID): Observable<any> {
+    const url = `${this.CateUrl}/update/${categoryID}`;
+    const input = { name: category};
+    console.log('input',input);
     return this.http.put(url, input, httpOptions).pipe(
-      tap(_ => this.log(`updated task id=${task.taskID}`)),
+      tap(_ => this.log(`updated task id=${categoryID}`)),
       catchError(this.handleError<any>("updateTask"))
     );
   }
@@ -71,6 +72,14 @@ export class CategoryService {
     return this.http.get<Category[]>(url).pipe(
       tap(tasks => this.log("fetched tasks")),
       catchError(this.handleError("getCategory", []))
+    );
+  }
+   /** GET Service from the server */
+  getUserCategory(): Observable<Category[]> {
+    const url = `${this.CateUrl}/userscategory`;
+    return this.http.get<Category[]>(url).pipe(
+      tap(tasks => this.log("fetched tasks")),
+      catchError(this.handleError("getUserCategory", []))
     );
   }
 

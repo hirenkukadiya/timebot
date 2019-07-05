@@ -1,0 +1,37 @@
+
+    <div class="actionpopup" *ngIf="isOpen == 1" id="{{task.taskID}}">
+      {{task.taskID}}
+      <li>
+      <div class="delete-btn" (click)="openConfirmDialog(task)">
+          <i class="fa fa-pencil-square-o"></i>Edit
+        </div>
+      </li>
+      <li *ngIf="task.timelog.length == 0">
+        <div class="delete-btn" (click)="deleteTasks(task, filter_no)">
+          <i class="fa fa-trash"></i>Delete
+        </div>
+      </li>
+      <li *ngIf="task.timelog.length > 0">
+        <div class="delete-btn" (click)="archiveTasks(task, filter_no)">
+          <i class="fa fa-archive"></i>Archive
+        </div>
+      </li>
+      <li class="priority">
+        <div class="priority_lable">Priority</div>
+        <div class="priority_element">
+          <div title="Critical" (click)="onSetPriorityItem(task, 1, filter_no)" [ngClass]="task.priority == 1 ? 'new_pr' : ''">
+            <img src="/assets/images/p1.png" />
+          </div>
+          <div title="High" (click)="onSetPriorityItem(task, 2, filter_no)"
+          [ngClass]="task.priority == 2 ? 'new_pr' : ''">
+            <img src="/assets/images/p2.png" />
+          </div>
+          <div title="Medium" (click)="onSetPriorityItem(task, 3, filter_no)" [ngClass]="task.priority == 3 ? 'new_pr' : ''">
+          <img src="/assets/images/p3.png" />
+          </div>
+          <div title="Low" (click)="onSetPriorityItem(task, 4, filter_no)" [ngClass]="task.priority == 4 ? 'new_pr' : ''">
+            <img src="/assets/images/p4.png" />
+          </div>
+        </div>
+      </li>                              
+    </div>

@@ -22,7 +22,7 @@
               <th role="columnheader">Sunday</th>
               <th role="columnheader">Monday</th>
               <th role="columnheader">Tuesday</th>
-              <th role="columnheader">Wedensday</th>
+              <th role="columnheader">Wednesday</th>
               <th role="columnheader">Thursday</th>
               <th role="columnheader">Friday</th>
               <th role="columnheader">Saturday</th>      
@@ -163,7 +163,7 @@
               <th role="columnheader">Sunday</th>
               <th role="columnheader">Monday</th>
               <th role="columnheader">Tuesday</th>
-              <th role="columnheader">Wedensday</th>
+              <th role="columnheader">Wednesday</th>
               <th role="columnheader">Thursday</th>
               <th role="columnheader">Friday</th>
               <th role="columnheader">Saturday</th>      
@@ -174,7 +174,7 @@
             <tr id='datarow' *ngFor="let row of rowList; let id = index" id="{{ row.rowID }}">
               <td>    
                 <input type="hidden" id="cat_{{id}}" value="{{row.categoryID}}">
-                 {{row.cate_name}}
+                  {{getCategoryName(row.categoryID)}}
               </td>
               <td role="cell">
                 <span id="sun_{{id}}">{{changetime(row.timelog[0].start)}} - {{changetime(row.timelog[0].end)}}</span>
@@ -285,7 +285,7 @@
               <th role="columnheader">Sunday</th>
               <th role="columnheader">Monday</th>
               <th role="columnheader">Tuesday</th>
-              <th role="columnheader">Wedensday</th>
+              <th role="columnheader">Wednesday</th>
               <th role="columnheader">Thursday</th>
               <th role="columnheader">Friday</th>
               <th role="columnheader">Saturday</th>      
