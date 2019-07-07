@@ -27,7 +27,7 @@ import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 import { TreeModule } from 'angular-tree-component';
 import { TreeviewModule } from 'ngx-treeview';
 import { ActionComponent } from './action/action.component';
-
+import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 
 @NgModule({
   declarations: [
@@ -61,6 +61,7 @@ import { ActionComponent } from './action/action.component';
     NgxDaterangepickerMd.forRoot(),
     TreeModule.forRoot(),
     TreeviewModule.forRoot(),
+    NgMultiSelectDropDownModule.forRoot()
   ],
   providers: [EventEmiterService,{
     provide: HTTP_INTERCEPTORS,

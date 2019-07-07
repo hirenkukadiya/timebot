@@ -33,6 +33,7 @@
     "hammerjs": "^2.0.8",
     "jquery": "^3.4.1",
     "moment": "^2.24.0",
+    "ng-multiselect-dropdown": "^0.2.3",
     "ng5-slider": "^1.1.13",
     "ngx-daterangepicker-material": "^2.1.3",
     "ngx-smart-modal": "^7.1.1",

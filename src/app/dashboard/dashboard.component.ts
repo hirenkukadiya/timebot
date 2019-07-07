@@ -113,6 +113,13 @@ export class DashboardComponent implements OnInit {
   updateCate = "";
   validationerror = 0; 
   daypilotstart = new Date();
+  allchildcates = [];
+  showcompleted = 0;
+  showarchived = 0;
+  showincompleted = 1;
+  showrunning = 1;
+  manageFilterList = [];
+  manageFilterselected = [];
   ranges: any = {
     'Date': [moment(), moment()],
     'Today': [moment(), moment()],
@@ -172,6 +179,8 @@ export class DashboardComponent implements OnInit {
       id: 6
     }
   ]; 
+  dropdownSettings = {};
+  
   timesheet: DayPilotSchedulerComponent;
   private dropdownTreeviewSelectI18n: DropdownTreeviewSelectI18n;
   constructor(
@@ -201,7 +210,7 @@ export class DashboardComponent implements OnInit {
     this.createTaskForm();
     this.getCategory();
     this.is_add_task = false;
-    this.filter(this.filter_no,0);
+    //this.filter(this.filter_no,0);
     var userdata = this.authService.getUser();
     this.userID = userdata['_id'];
      // time array
@@ -213,6 +222,26 @@ export class DashboardComponent implements OnInit {
       this.times[i] = ("0" + (hh % 12)).slice(-2) + ':' + ("0" + mm).slice(-2) + ap[Math.floor(hh/12)];
       tt = tt + 30;
     };
+    this.dropdownSettings = {
+      singleSelection: false,
+      idField: 'item_id',
+      textField: 'item_text',
+      selectAllText: 'Select All',
+      unSelectAllText: 'UnSelect All',
+      itemsShowLimit: 2,
+      allowSearchFilter: false,
+      closeDropDownOnSelection: true
+    };
+    this.manageFilterList = [
+      { item_id: 1, item_text: 'InCompleted' },
+      { item_id: 2, item_text: 'Running' },
+      { item_id: 3, item_text: 'Completed' },
+      { item_id: 4, item_text: 'Archived' }
+    ];
+    this.manageFilterselected = [
+      { item_id: 1, item_text: 'InCompleted' },
+      { item_id: 2, item_text: 'Running' }
+    ];
     this.items = [];
     this.catitems = [];
   }
@@ -467,7 +496,7 @@ export class DashboardComponent implements OnInit {
   getTasks(click): void {
     //console.log("get tasks...");
     this.taskService.getTasks().subscribe(newtasks => {
-      console.log("view update tasks", newtasks);
+      //console.log("view update tasks",JSON.parse(JSON.stringify(newtasks))  );
       this.filterTask(newtasks,click);
     });
   }
@@ -479,31 +508,40 @@ export class DashboardComponent implements OnInit {
     let all_task = [];
     let timesheet_tasks = [];
     for (let index in tasks) {
-
+      /*task.status == 0(Incompleted), task.status == 1(Completed),
+        task.status == 2(Archived)
+      */
       let task = tasks[index];
-      //console.log('Task ', task);
-      //all_task.push(JSON.parse(JSON.stringify(task)));
-      all_task.push(task);
       
       if(task.status == 2){
-       tasks_archive.push(task);
-     }else if(task.status == 0){
-       tasks_anassgin.push(task);
-     }else{
-      tasks_completed.push(task);
-    }
-      //console.log('Task Name',task.name +' Timelog length' + task['timelog'].length)
+         tasks_archive.push(task);
+      }else if(task.status == 0){
+         tasks_anassgin.push(task);
+      }else{
+        tasks_completed.push(task);
+      }
+      if(this.showcompleted == 1 && task.status == 1){
+       all_task.push(task);
+      }
+      if(this.showarchived == 1 && task.status == 2){
+       all_task.push(task);
+      }
+      if(this.showincompleted == 1 && task.status == 0 && task.state == 0){
+       all_task.push(task);
+      }
+      if(this.showrunning == 1 && task.state == 1){
+       all_task.push(task);
+      }
       timesheet_tasks.push(task);
     }
     this.tasks = tasks_anassgin;
     this.timesheet_tasks = timesheet_tasks;
     this.cat_name = Array.from(
-      new Set(tasks_anassgin.map(({ category_name }) => category_name))
-      );
-
+    new Set(tasks_anassgin.map(({ category_name }) => category_name))
+    );
     this.cat_ids = Array.from(
       new Set(tasks_anassgin.map(({ category_id }) => category_id))
-      );
+    );
     this.tasks_org = JSON.parse(JSON.stringify(this.tasks));
     this.tasks_completed = tasks_completed;
     this.tasks_archive = tasks_archive;
@@ -542,65 +580,56 @@ export class DashboardComponent implements OnInit {
         return 0;
       });
      }
-   }
-    //console.log('catData',catData);
+    }
     if (catData.length > 0) {
       for (var index in catData) {
         data_tree.push(catData[index]);
       }
     }
-    //console.log('data_tree',data_tree);
-    //console.log('all_task', all_task);
     let manageRows = [];
     for (var index in all_task) {
-
-     let addRows = [];
-     
-     addRows['action'] = all_task[index];
-     addRows['task'] = all_task[index]['name'];
-     addRows['taskID'] = all_task[index]['taskID'];
-     addRows['id'] = all_task[index]['taskID'];
-     addRows['category_id'] = all_task[index]['category_id'];              
-     addRows['description'] = all_task[index]['description'];
-     addRows['category'] = this.getCategoryName(all_task[index]['category_id']);
-     addRows['priority'] = all_task[index]['priority'];
-     //addRows['timelog'] = all_task[index]['timelog'];
-     addRows['status'] = all_task[index]['status']; 
-     
-     let setDate = 0;
-     if(all_task[index]['setDate']!=undefined && all_task[index]['setDate'] == 1){
-      setDate = 1;
+               
+        let addRows = [];     
+        addRows['action'] = all_task[index];
+        addRows['task'] = all_task[index]['name'];
+        addRows['taskID'] = all_task[index]['taskID'];
+        addRows['id'] = all_task[index]['taskID'];
+        addRows['category_id'] = all_task[index]['category_id'];              
+        addRows['description'] = all_task[index]['description'];
+        addRows['category'] = this.getCategoryName(all_task[index]['category_id']);
+        addRows['priority'] = all_task[index]['priority'];        
+        addRows['status'] = all_task[index]['status'];          
+        let setDate = 0;
+        if(all_task[index]['setDate']!=undefined && all_task[index]['setDate'] == 1){
+          setDate = 1;
+        }
+        let frequency = "";
+        if(all_task[index]['frequency'] == 1){
+          frequency = 'Daily';
+        }
+        if(all_task[index]['frequency'] == 2){
+          frequency = 'Weekly';
+        }
+        if(all_task[index]['frequency'] == 3){
+          frequency = 'Monthly';
+        }
+        addRows['dueOn'] = all_task[index]['dueon'];
+        addRows['whenDue'] = "No Due";
+        if(all_task[index]['dueon']!=undefined && all_task[index]['dueon']!=""){
+          addRows['whenDue'] = this.getwhendue(all_task[index]['dueon'],'1',setDate); 
+        }
+        addRows['lastModifyTime'] = "";
+        if(all_task[index]['modifiedON']!=undefined && all_task[index]['modifiedON']!=""){
+          addRows['lastModifyTime'] = moment(all_task[index]['modifiedON']).format("MM/DD/YYYY hh:mm A");
+        }
+        addRows['totalTime'] = this.getStatus(all_task[index],Taskstatus,3);       
+        var Taskstatus = all_task[index]['status'];
+        addRows['status'] = this.getStatus(all_task[index],Taskstatus,1);
+        addRows['lastRecordTime'] = this.getStatus(all_task[index],Taskstatus,2);
+        addRows['frequency'] = frequency;
+        manageRows.push(addRows);
+      
     }
-    let frequency = "";
-    if(all_task[index]['frequency'] == 1){
-      frequency = 'Daily';
-    }
-    if(all_task[index]['frequency'] == 2){
-      frequency = 'Weekly';
-    }
-    if(all_task[index]['frequency'] == 3){
-      frequency = 'Monthly';
-    }
-    addRows['dueOn'] = all_task[index]['dueon'];
-    addRows['whenDue'] = "No Due";
-    if(all_task[index]['dueon']!=undefined && all_task[index]['dueon']!=""){
-      addRows['whenDue'] = this.getwhendue(all_task[index]['dueon'],'1',setDate); 
-    }
-
-    addRows['lastModifyTime'] = "";
-    if(all_task[index]['modifiedON']!=undefined && all_task[index]['modifiedON']!=""){
-      addRows['lastModifyTime'] = moment(all_task[index]['modifiedON']).format("MM/DD/YYYY hh:mm A");
-    }
-    addRows['totalTime'] = this.getStatus(all_task[index],Taskstatus,3); 
-       //console.log('Task Name ',+ all_task[index].name + ' Time Log => '+ Object.keys(all_task[index]['timelog']).length);
-       var Taskstatus = all_task[index]['status'];
-       addRows['status'] = this.getStatus(all_task[index],Taskstatus,1);
-       addRows['lastRecordTime'] = this.getStatus(all_task[index],Taskstatus,2);
-       //addRows['totalTime'] = this.getStatus(all_task[index],Taskstatus,3); 
-       addRows['frequency'] = frequency;
-       manageRows.push(addRows);
-     }
-    //console.log('manageRows',manageRows);
 
     manageRows.sort(function(a,b){
       if(a.dueOn < b.dueOn) { return -1; }
@@ -628,6 +657,7 @@ export class DashboardComponent implements OnInit {
   getCategory(): void {
     this.taskService.getCategory().subscribe(category => {
       this.filterCategroy(category);
+      this.getTasks(0);
     });
   }
   filterCategroy(category) {
@@ -660,6 +690,7 @@ export class DashboardComponent implements OnInit {
       return a.index - b.index;
     });    
     this.category = category_list;
+    
     for (let index in category_list) {
      var cateId = category_list[index].value;     
      if(category_list[index].parent==""){
@@ -738,7 +769,7 @@ export class DashboardComponent implements OnInit {
         if(flag == 1){
           return Currenttime;
         }else{          
-          var lastrecord = task.timelog.pop();
+          var lastrecord =  task.timelog[task.timelog.length-1];
           // console.log('Last time ',lastrecord);
           // console.log('Task Name ',task.name);
           var lasttime = Currenttime;
@@ -1151,26 +1182,40 @@ export class DashboardComponent implements OnInit {
           this.cat_name[i] = "Unassigned";
         }
         if(category[i].parent==""){
-        childs["name"] = category[i].label;
-        childs["id"] = category[i].value;
-        childs["taskID"] = category[i].value;
-        childs["color"] = category[i].color;
-        childs["childrens"] = this.getChilTask(category[i].value);
-        // if(category[i].parent!="" && category[i].parent!=undefined){
-        //   var parent = this.getCategoryParent(category[i].parent);
-        //   //console.log('Parent Data', parent['label']);
-        //   childs["name"] = parent['label'];
-        //   childs["id"] = category[i].value;
-        //   childs["taskID"] = parent['value'];
-        //   childs["color"] = category[i].color;
-        if (childs["childrens"].length > 0) {
-            parents.push(childs);
-          }
-        }
-        
+          childs["name"] = category[i].label;
+          childs["id"] = category[i].value;
+          childs["taskID"] = category[i].value;
+          childs["color"] = category[i].color;
+          childs["childrens"] = this.getChilTask(category[i].value);
+          let childscat = this.getChilCat(category[i].value);
+          childs["childcats"] = childscat;
+          if (childs["childrens"].length > 0 || childscat.length > 0) {
+              parents.push(childs);
+            }
+          }        
       }
     }
     return parents;
+  }
+  filter_getParentCategory(cateID) {
+      let parents = [];
+      let category = this.category;
+      for (let i = 0; i < category.length; i++) {
+        let childs = {};
+        if (category[i] != "") {
+          if(category[i].value === cateID) {         
+            childs["name"] = category[i].label;
+            childs["id"] = category[i].value;
+            childs["childrens"] = this.getChilTask(category[i].value);
+            let childscat = this.getChilCat(category[i].value);
+            childs["childcats"] = childscat;
+            if (childs["childrens"].length > 0 || childscat.length > 0) {
+              parents.push(childs);
+            }
+          }
+        }
+      }
+      return parents;
   }
   getCategoryParent(catID){
      let category = this.category;
@@ -1663,10 +1708,8 @@ export class DashboardComponent implements OnInit {
         }
       }
     }
-
     /*Remain Category as per planner */
     var catDatas = this.getParentCategory(data);
-    console.log('catDatas ', catDatas);
     if (catDatas.length > 0) {
       for (var idx in catDatas) {
         if (!this.inArray(catDatas[idx].id, added_category)) {
@@ -1684,10 +1727,11 @@ export class DashboardComponent implements OnInit {
     let tchild = [];
     /* Today Task */
     for (var i in today_tree) {
-      let cateId = today_tree[i].id;
-      //console.log('today_tree[i]', today_tree[i]);
+      let cateId = today_tree[i].id;      
       let chield = [];
-      chield = this.getsheduleTask(cateId,'today'); 
+      this.allchildcates = [];          
+      this.getIds(today_tree[i].childcats);
+      chield = this.getsheduleTask(cateId,'today');
       if(chield.length > 0){
         today_tree[i].childrens = "";
         today_tree[i].childrens = chield;
@@ -1698,6 +1742,8 @@ export class DashboardComponent implements OnInit {
     for (var i in tomorrow_tree) {
       let cateId = tomorrow_tree[i].id;
       let chield = [];
+      this.allchildcates = [];          
+      this.getIds(tomorrow_tree[i].childcats);
       chield = this.getsheduleTask(cateId,'tomorrow'); 
       if(chield.length > 0){
         tomorrow_tree[i].childrens = "";
@@ -1709,6 +1755,8 @@ export class DashboardComponent implements OnInit {
     for (var i in upcomming_tree) {
       let cateId = upcomming_tree[i].id;
       let chield = [];
+      this.allchildcates = [];          
+      this.getIds(upcomming_tree[i].childcats);
       chield = this.getsheduleTask(cateId,'upcomming'); 
       if(chield.length > 0){
         upcomming_tree[i].childrens = "";
@@ -1720,6 +1768,8 @@ export class DashboardComponent implements OnInit {
     for (var i in nodue_tree) {
       let cateId = nodue_tree[i].id;
       let chield = [];
+      this.allchildcates = [];          
+      this.getIds(nodue_tree[i].childcats);
       chield = this.getsheduleTask(cateId,'nodue'); 
       if(chield.length > 0){
         nodue_tree[i].childrens = "";
@@ -1731,8 +1781,15 @@ export class DashboardComponent implements OnInit {
     this.tomorrowTask = tomorrowTask;
     this.upcommingTask = upcommingTask;
     this.nodueTask = nodueTask;
-    //console.log('nodueTask',nodueTask);
-    //this.getCalendarTask(this.timesheet_tasks);
+  }
+  getIds(obj) {
+    for (var x in obj) {
+      if (typeof obj[x] === 'object') {
+        this.getIds(obj[x]);
+      } else if (x == 'value') {
+        this.allchildcates.push(obj.value);
+      }
+    }
   }
   getsheduleTask(cateId,flag){
 
@@ -1740,9 +1797,10 @@ export class DashboardComponent implements OnInit {
     var tomorrow = new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toDateString();
     let task = this.tasks;
     if(flag == 'today'){
+      //console.log('this cate ', this.childcats);
       let childst = [];
       for (var i in task) {
-        if(cateId == task[i].category_id){           
+        if(cateId == task[i].category_id || this.inArray(task[i].category_id, this.allchildcates)){           
           var event = new Date(task[i].dueon);
           event.setHours(0,0,0);
           let dueDate = event.toString();
@@ -1758,7 +1816,7 @@ export class DashboardComponent implements OnInit {
     if(flag == 'tomorrow'){
       let childtm = [];
       for (var i in task) {
-        if(cateId == task[i].category_id){
+        if(cateId == task[i].category_id || this.inArray(task[i].category_id, this.allchildcates)){
           var event = new Date(task[i].dueon);
           event.setHours(0,0,0);
           let dueDate = event.toString();
@@ -1774,7 +1832,7 @@ export class DashboardComponent implements OnInit {
     if(flag == 'upcomming'){
       let childup = [];
       for (var i in task) {
-        if(cateId == task[i].category_id){
+        if(cateId == task[i].category_id || this.inArray(task[i].category_id, this.allchildcates)){
           var event = new Date(task[i].dueon);
           event.setHours(0,0,0);
           let dueDate = event.toString();
@@ -1791,7 +1849,7 @@ export class DashboardComponent implements OnInit {
     if(flag == 'nodue'){
       let childst = [];
       for (var i in task) {
-        if(cateId == task[i].category_id){
+        if(cateId == task[i].category_id || this.inArray(task[i].category_id, this.allchildcates)){
           if (task[i].dueon=="") {
             childst.push(task[i]);
           }
@@ -1822,23 +1880,74 @@ export class DashboardComponent implements OnInit {
     }
     return false;
   }
-  filter_getParentCategory(cateID) {
-      let parents = [];
-      let category = this.category;
-      for (let i = 0; i < category.length; i++) {
-        let childs = {};
-        if (category[i] != "") {
-          if (category[i].value === cateID) {         
-            childs["name"] = category[i].label;
-            childs["id"] = category[i].value;
-            childs["childrens"] = this.getChilTask(category[i].value);
-            if (childs["childrens"].length > 0) {
-              parents.push(childs);
-            }
-          }
-        }
+  manageFilter(flag){ 
+    console.log('event', flag);
+    /* 1 =  Show Completed, 2 =  Show Archived, 
+       3 =  Show InCompleted, 4 =  Show Running */
+    if(flag.item_id == 1){
+      if(this.showincompleted == 0){
+        this.showincompleted = 1;
       }
-      return parents;
+    }
+    if(flag.item_id == 2){
+      if(this.showrunning == 0){
+        this.showrunning = 1;
+      }
+    }
+    if(flag.item_id == 3){
+      if(this.showcompleted == 0){
+        this.showcompleted = 1;
+      }
+    }
+    if(flag.item_id == 4){
+      if(this.showarchived == 0){
+        this.showarchived = 1;
+      }
+    }    
+    this.getTasks(0);
+  } 
+  manageFilterAll(flag){ 
+    console.log('Select all event', flag);
+    /* 1 =  Show Completed, 2 =  Show Archived, 
+       3 =  Show InCompleted, 4 =  Show Running */ 
+    this.showincompleted = 1;
+    this.showrunning = 1;
+    this.showcompleted = 1;
+    this.showarchived = 1; 
+    this.getTasks(0);
+  }
+  manageFilterDeSelect(flag){ 
+    //console.log('Deselet All', flag);
+    if(flag.item_id == 1){
+      if(this.showincompleted == 1){
+        this.showincompleted = 0;
+      }
+    }
+    if(flag.item_id == 2){
+      if(this.showrunning == 1){
+        this.showrunning = 0;
+      }
+    }
+    if(flag.item_id == 3){
+      if(this.showcompleted == 1){
+        this.showcompleted = 0;
+      }
+    }
+    if(flag.item_id == 4){
+      if(this.showarchived == 1){
+        this.showarchived = 0;
+      }
+    }      
+    this.getTasks(0);
+  }
+  manageFilterDeSelectAll(flag){
+    console.log('Deselet All Items');
+    this.showincompleted = 0;
+    this.showrunning = 0;
+    this.showcompleted = 0;
+    this.showarchived = 0; 
+    this.updateDisplay = 0;
+    this.getTasks(0);
   }
   timeToDecimal(t) {
     var arr = t.split(":");
@@ -2046,42 +2155,42 @@ export class DashboardComponent implements OnInit {
         index_1 = current_1['index'] / 2;
       }
      // console.log("index = ",index_1);
-     var container_data = event.container.data[event.currentIndex];
-     if(container_data == undefined){
+      var container_data = event.container.data[event.currentIndex];
+      if(container_data == undefined){
       container_data = event.container.data[event.currentIndex - 1];
+      }
+      this.setDropData(
+        index_1,
+        event.previousContainer.data[event.previousIndex],
+        container_data
+        );
+      transferArrayItem(
+        event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex
+        );
     }
-    this.setDropData(
-      index_1,
-      event.previousContainer.data[event.previousIndex],
-      container_data
-      );
-    transferArrayItem(
-      event.previousContainer.data,
-      event.container.data,
-      event.previousIndex,
-      event.currentIndex
-      );
-  }
   }
   hasTab(tab){
-  if(tab == "Status"){
-    this.selectedindex = this.tabs[0];
-  }else{
-    this.selectedindex = this.tabs[1];
-  }   
-  this.sucessMsg = 0; 
+    if(tab == "Status"){
+      this.selectedindex = this.tabs[0];
+    }else{
+      this.selectedindex = this.tabs[1];
+    }   
+    this.sucessMsg = 0; 
   }
   unarchive(task){
-  if (task.status != undefined) {
-    task.status = 0;
-    task.state = 0;
-  }
-  var input = {};
-  task.modifiedON = new Date();
-  this.taskService.updateTask(task).subscribe(task => {
-   var click = 0;
-   this.getTasks(click);
-  });
+    if (task.status != undefined) {
+      task.status = 0;
+      task.state = 0;
+    }
+    var input = {};
+    task.modifiedON = new Date();
+    this.taskService.updateTask(task).subscribe(task => {
+     var click = 0;
+     this.getTasks(click);
+    });
   }
   /*TimeLine Chnages*/
 
@@ -2104,24 +2213,20 @@ export class DashboardComponent implements OnInit {
     return prlable;
   }
   getCategoryName(cateId){
-  let cate = [];
-  for (let cat in this.category) {
-    cate[this.category[cat]['value']] = this.category[cat]['label'];
-  }
-      //console.log('Category',cate);
+    let cate = [];
+    for (let cat in this.category) {
+      cate[this.category[cat]['value']] = this.category[cat]['label'];
+    }
       return cate[cateId];
-  }
+    }
   getCategoryId(cateName){
-      let cate = [];
-      for (let cat in this.category) {
-        cate[this.category[cat]['label']] = this.category[cat]['value'];
-      }
-    //console.log('Category',cate);
+    let cate = [];
+    for (let cat in this.category) {
+      cate[this.category[cat]['label']] = this.category[cat]['value'];
+    }  
     return cate[cateName];
   }
   onSelect({ selected }) {
-
-    console.log('Show',selected);
     if(selected.length > 0){
       this.updateDisplay = 1;
     }else{

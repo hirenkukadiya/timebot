@@ -176,6 +176,7 @@ body.dialog-open {
     width: 20%;    
     margin-left: 10px !important;
     margin-top: 5px !important;
+    margin-right: 5px !important;
 }
 .header_action{
   display: -webkit-box;
@@ -251,13 +252,44 @@ body.dialog-open {
   color: #fff;
   background: #ea4d5b;
 }
+
+.actionbtn{
+    display: inline-block;
+    font-weight: 400;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    border: 1px solid transparent;
+    padding: 6px 12px !important;
+    font-size: 1rem;
+    line-height: 1.44;
+    border-radius: .25rem;
+    cursor: pointer;
+    margin-left: 5px !important;
+    margin-top: 2px !important;
+    outline:none;
+}
+.manageActionbutton .btn-primary{
+  color: #000;
+  background: #dddddd;
+}
+.manageActionbutton .btn-primary1{
+  color: #fff;
+  background: #ea4d5b;
+}
+.manageActionbutton .btn-primary:hover{
+  background: #ef7680;
+}
+.manageActionbutton .btn-primary1:hover{
+  background: #ef7680;
+}
 .btn-primary:hover{
   background: #ef7680;
 }
 .btn-secondar{
   color: #fff;
-    background-color: #6c757d;
-    border-color: #6c757d;
+  background-color: #6c757d;
+  border-color: #6c757d;
 }
 .btn-danger {
     color: #fff;

@@ -686,20 +686,37 @@
       </div>
       <div class="header_action">
         <button type="button" class="btn btn-primary" (click)="openConfirmDialog(value='')">Add</button>
-        <button type="button" class="btn btn-danger" (click)="remove()" [style.display]="updateDisplay == 1 ? 'block' : 'none'">Delete/Archive</button>
+        <button type="button" class="btn btn-danger" (click)="remove()" [style.display]="updateDisplay == 1 ? 'inline-block' : 'none'">Delete/Archive</button>
         <select (change)="multiupdateValue(c.value,'cate')" #c class="updatecate select" value="updateCate" [style.display]="updateDisplay == 1 ? 'block' : 'none'">
-        <option value="">Update Category</option>
+            <option value="">Update Category</option>
             <option *ngFor="let key of category" [value]="key.value">{{
               key.label}}
             </option>                
         </select>
-         <select (change)="multiupdateValue(p.value,'pr')" #p class="updatecate select" [style.display]="updateDisplay == 1 ? 'block' : 'none'">
-        <option value="">Update Priority</option>
+        <select (change)="multiupdateValue(p.value,'pr')" #p class="updatecate select" [style.display]="updateDisplay == 1 ? 'block' : 'none'">
+            <option value="">Update Priority</option>
             <option [value]="1">Critical</option>
             <option [value]="2">High</option>
             <option [value]="3">Medium</option>
             <option [value]="4">Low</option>             
-        </select>            
+        </select>  
+        <div class="manageActionbutton" [ngStyle]="{'width':updateDisplay === 1 ? '31%' : '40%' }">
+         <ng-multiselect-dropdown
+          [placeholder]="'Filter Task'"
+          [data]="manageFilterList"
+          [(ngModel)]="manageFilterselected"
+          [settings]="dropdownSettings"
+          (onSelect)="manageFilter($event)"
+          (onSelectAll)="manageFilterAll($event)"
+          (onDeSelect)="manageFilterDeSelect($event)"
+          (onDeSelectAll)="manageFilterDeSelectAll($event)"
+          >
+        </ng-multiselect-dropdown>
+         <!--  <button type="button" class="actionbtn" (click)="manageFilter(3)" [ngClass]="showincompleted == 1 ? ' btn-primary1' : ' btn-primary'">Show InCompleted</button>
+          <button type="button" class="actionbtn" (click)="manageFilter(4)" [ngClass]="showrunning == 1 ? 'btn-primary1' : 'btn-primary'">Show Running</button> 
+          <button type="button" class="actionbtn" (click)="manageFilter(1)" [ngClass]="showcompleted == 1 ? 'btn-primary1' : 'btn-primary'">Show Completed</button>
+          <button type="button" class="actionbtn" (click)="manageFilter(2)" [ngClass]="showarchived == 1 ? 'btn-primary1' : 'btn-primary'">Show Archived</button> -->
+        </div>       
       </div>
       <ngx-datatable          
         class="material"
@@ -707,9 +724,9 @@
         [columnMode]="'standard'"
         [headerHeight]="50"
         [footerHeight]="50"
-        [rowHeight]="'auto'"
+        [rowHeight]="70"
         [selected]="selected"
-
+        [scrollbarV]="true"
         [selectionType]="'checkbox'"
         [selectAllRowsOnPage]="false"
         [displayCheck]="displayCheck"
@@ -785,11 +802,9 @@
               </select>
           </ng-template>
         </ngx-datatable-column>
-        <ngx-datatable-column name="Priority" [width]="140">
+        <ngx-datatable-column name="Priority" [width]="90">
           <ng-template ngx-datatable-cell-template let-rowIndex="rowIndex" let-row="manage_rows" let-value="value">           
-             <span
-              title="Double click to edit"
-              (dblclick)="editing[rowIndex + '-priority'] = true">
+             <span title="Double click to edit" (dblclick)="editing[rowIndex + '-priority'] = true">
               <img *ngIf="value != '' && !editing[rowIndex + '-priority']" src="{{getPriority(value)}}"/>
             </span>
             <span
@@ -798,24 +813,21 @@
               *ngIf="value == '' && !editing[rowIndex + '-priority']">
              <img src="{{getPriority(0)}}"/>
             </span>
-
-              <select *ngIf="editing[rowIndex + '-priority']"
-              (blur)="editing[rowIndex + '-priority'] = false"
-              (change)="updateValue($event, 'priority', rowIndex,manage_rows[rowIndex],'priorityUp')" [value]="value">
-                  <option [value]="">Select Priority</option>
-                  <option [value]="1">Critical</option>
-                  <option [value]="2">High</option>
-                  <option [value]="3">Medium</option>
-                  <option [value]="4">Low</option> 
-              </select>
+            <select *ngIf="editing[rowIndex + '-priority']" (blur)="editing[rowIndex + '-priority'] = false" (change)="updateValue($event, 'priority', rowIndex,manage_rows[rowIndex],'priorityUp')" [value]="value">
+                <option [value]="">Select Priority</option>
+                <option [value]="1">Critical</option>
+                <option [value]="2">High</option>
+                <option [value]="3">Medium</option>
+                <option [value]="4">Low</option> 
+            </select>
           </ng-template>
         </ngx-datatable-column>         
-        <ngx-datatable-column name="When Due" [width]="160"></ngx-datatable-column>
-        <ngx-datatable-column name="Frequency" [width]="90"></ngx-datatable-column>
-        <ngx-datatable-column name="Status" [width]="120"></ngx-datatable-column>
+        <ngx-datatable-column name="When Due" [width]="120"></ngx-datatable-column>
+        <ngx-datatable-column name="Frequency" [width]="70"></ngx-datatable-column>
+        <ngx-datatable-column name="Status" [width]="90"></ngx-datatable-column>
         <ngx-datatable-column name="Last Record Time" [width]="140"></ngx-datatable-column>
         <ngx-datatable-column name="Last Modify Time" [width]="140"></ngx-datatable-column>
-        <ngx-datatable-column name="Total Time" [width]="120"></ngx-datatable-column>
+        <ngx-datatable-column name="Total Time" [width]="80"></ngx-datatable-column>
         <ngx-datatable-column name="Action" [width]="140">          
           <ng-template #deleteBtn let-value="value"  let-row="manage_rows"  ngx-datatable-cell-template>
             <div class="d-flex justify-content-center btn btn-sm btn-outline-secondary">
@@ -841,17 +853,13 @@
 <!--right panel code ends here-->
 </div>
  
-
-<!-- master container ends here-->
-<ngx-smart-modal #myBootstrapModal identifier="myBootstrapModal" [closable]="false"
-                 customClass="modal-content no-padding" class="edit-rec">
-   <!-- <pre> Data : {{ myBootstrapModal.getData().category_id | json }}</pre> -->
+<!-- Task Add/Edit Popup -->
+<ngx-smart-modal #myBootstrapModal identifier="myBootstrapModal" [closable]="false" customClass="modal-content no-padding" class="edit-rec">
   <div class="modal-header">
     <h5 class="modal-title"><i class="fa fa-pencil-square-o"></i>{{tasklable}}</h5>
     <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="myBootstrapModal.close()">
       <span aria-hidden="true">&times;</span>
     </button>
-
   </div> 
   <div class="modal-body">
     <div class="errormessage" *ngIf="validationerror== 1 && task == ''">Task name is required</div>

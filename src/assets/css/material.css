@@ -1,23 +1,8 @@
 .ngx-datatable.material {
   background: #FFF;
   box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
-  max-height: 1000px;
-  overflow: scroll;
-  /**
-	 * Shared Styles
-	 */
-  /**
-	 * Global Row Styles
-	 */
-  /**
-	 * Header Styles
-	 */
-  /**
-	 * Body Styles
-	 */
-  /**
-	 * Footer Styles
-	 */ }
+  max-height: 700px;
+  /*overflow: scroll;*/ }
   .ngx-datatable.material.striped .datatable-row-odd {
     background: #eee; }
   .ngx-datatable.material.single-selection .datatable-body-row.active,
@@ -135,7 +120,7 @@
     border-top: solid 1px #D9D8D9; }
   .ngx-datatable.material .datatable-body .datatable-body-row .datatable-body-cell {
     text-align: left;
-    padding: .9rem 1.2rem;
+    padding: .9rem 1rem;
     vertical-align: top;
     border-top: 0;
     color: rgba(0, 0, 0, 0.87);
@@ -144,7 +129,7 @@
     font-weight: 400; }
   .ngx-datatable.material .datatable-body .datatable-body-row .datatable-body-group-cell {
     text-align: left;
-    padding: .9rem 1.2rem;
+    padding: .9rem 1rem;
     vertical-align: top;
     border-top: 0;
     color: rgba(0, 0, 0, 0.87);
@@ -189,9 +174,11 @@
     .ngx-datatable.material .datatable-footer .page-count {
       line-height: 50px;
       height: 50px;
-      padding: 0 1.2rem; }
+      padding: 0 1rem; }
     .ngx-datatable.material .datatable-footer .datatable-pager {
-      margin: 0 10px; }
+      margin: 0 10px; 
+      display: none;
+    }
       .ngx-datatable.material .datatable-footer .datatable-pager li {
         vertical-align: middle; }
         .ngx-datatable.material .datatable-footer .datatable-pager li.disabled a {
@@ -274,9 +261,7 @@
       height: 1rem;
       background: #fff;
       cursor: pointer; }
-.ngx-datatable .datatable-header{
-  display: table-row !important;
-}
+
 /**
  * Progress bar animations
  */
@@ -287,3 +272,10 @@
   100% {
     opacity: 0;
     transform: translateX(-50%) scale(0, 1); } }
+/* Custome CSS */
+.ngx-datatable.fixed-row .datatable-scroll .datatable-body-row .datatable-body-cell{
+  white-space: pre-wrap !important;
+}
+.ngx-datatable .datatable-header{
+  display: table-row !important;
+}

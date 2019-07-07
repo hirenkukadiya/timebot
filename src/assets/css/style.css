@@ -59,7 +59,7 @@ p {
 
 input,
 textarea {
-  -webkit-appearance: none;
+ /* -webkit-appearance: none;*/
   border: none;
   outline: none;
   padding: 0;
