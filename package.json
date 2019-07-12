@@ -26,6 +26,7 @@
     "angular-6-datatable": "^0.8.0",
     "angular-daterangepicker": "^0.2.3-alpha1",
     "angular-material": "^1.1.18",
+    "angular-ng-autocomplete": "^1.1.13",
     "angular-sortablejs": "^2.7.0",
     "angular-tree-component": "^8.4.0",
     "core-js": "^2.5.4",

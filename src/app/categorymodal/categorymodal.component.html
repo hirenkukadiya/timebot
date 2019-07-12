@@ -1,0 +1,31 @@
+
+<ng-template #itemTemplate let-item="item" let-onCollapseExpand="onCollapseExpand" let-onCheckedChange="onCheckedChange">
+  <div class="form-inline row-item">
+    <i *ngIf="item.children" (click)="onCollapseExpand()" aria-hidden="true" class="fa" [class.fa-caret-right]="item.collapsed"
+      [class.fa-caret-down]="!item.collapsed"></i>
+    <label class="form-check-label" (click)="select(item)">{{ item.text }}</label>
+  </div>
+</ng-template>
+<ng-template #headerTemplate let-config="catconfig" let-item="item" let-onCollapseExpand="onCollapseExpand" let-onCheckedChange="onCheckedChange"
+  let-onFilterTextChange="onFilterTextChange">
+  <div *ngIf="catconfig.hasFilter" class="row row-filter">
+    <div class="col-12">
+      <input class="select form-control" type="text" [(ngModel)]="filterText" (ngModelChange)="onFilterTextChange($event)"
+      />
+    </div>
+  </div>
+  <div *ngIf="catconfig.hasAllCheckBox || catconfig.hasCollapseExpand" class="row">
+    <div class="col-12">
+      <label *ngIf="catconfig.hasAllCheckBox" (click)="select(item)">
+        <strong>TEST</strong>
+      </label>
+      <label *ngIf="catconfig.hasCollapseExpand" class="pull-right" (click)="onCollapseExpand()">
+        <i [title]="i18n.getTooltipCollapseExpandText(item.collapsed)" aria-hidden="true" class="fa" [class.fa-expand]="item.collapsed"
+          [class.fa-compress]="!item.collapsed"></i>
+      </label>
+    </div>
+  </div>
+  <div *ngIf="catconfig.hasDivider" class="dropdown-divider"></div>
+</ng-template>
+<ngx-dropdown-treeview [config]="catconfig" [items]="items" [itemTemplate]="itemTemplate" [headerTemplate]="headerTemplate">
+</ngx-dropdown-treeview>

@@ -52,44 +52,7 @@
                     taskForm.get('task_name').touched)
                 ">Task is required
               </span>
-          <!-- <ng-template #itemTemplate1 let-item="item" let-onCollapseExpand="onCollapseExpand" let-onCheckedChange="onCheckedChange">
-            <div class="form-inline row-item">
-              <i *ngIf="item.children" (click)="onCollapseExpand()" aria-hidden="true" class="fa" [class.fa-caret-right]="item.collapsed"
-                [class.fa-caret-down]="!item.collapsed"></i>
-              <label class="form-check-label" (click)="select1(item)">{{ item.text }}</label>
-            </div>
-          </ng-template>
-          <ng-template #headerTemplate1 let-config="sidebarcatconfig" let-item="item" let-onCollapseExpand="onCollapseExpand" let-onCheckedChange="onCheckedChange"
-            let-onFilterTextChange="onFilterTextChange">
-            <div *ngIf="sidebarcatconfig.hasFilter" class="row row-filter">
-              <div class="col-12">
-                <input class="select form-control" type="text" formControlName="category_id" [(ngModel)]="category_id" (ngModelChange)="onFilterTextChange($event)"
-                />
-              </div>
-            </div>
-            <div *ngIf="sidebarcatconfig.hasAllCheckBox || sidebarcatconfig.hasCollapseExpand" class="row">
-              <div class="col-12">
-                <label *ngIf="sidebarcatconfig.hasAllCheckBox" (click)="select(item)">
-                  <strong>TEST</strong>
-                </label>
-                <label *ngIf="sidebarcatconfig.hasCollapseExpand" class="pull-right" (click)="onCollapseExpand()">
-                  <i [title]="i18n.getTooltipCollapseExpandText(item.collapsed)" aria-hidden="true" class="fa" [class.fa-expand]="item.collapsed"
-                    [class.fa-compress]="!item.collapsed"></i>
-                </label>
-              </div>
-            </div>
-            <div *ngIf="sidebarcatconfig.hasDivider" class="dropdown-divider"></div>
-          </ng-template>
-          <ngx-dropdown-treeview [config]="sidebarcatconfig" [items]="catitems" [itemTemplate]="itemTemplate1" [headerTemplate]="headerTemplate1">
-          </ngx-dropdown-treeview> -->
-              <select name="category_id" [(ngModel)]="category_id" formControlName="category_id" class="select">
-                <option value="">Select Category</option>
-                <ng-container *ngFor="let key of category">
-                  <option *ngIf="key.is_display" [value]="key.value">{{
-                    key.label
-                  }}</option>
-                </ng-container>
-              </select>
+              <app-categorymodal  (valueChange)="onCategorySelect($event)" ></app-categorymodal>
             </form>
           </div>
         </div>
@@ -676,10 +639,10 @@
         </div>  
   <div class="tab-content">
     <div *ngIf="selectedindex === tabs[0]" role="tabpanel" class="tab-pane active" id="one">           
-            <div class="header_action">
-              Selelct : <input type="text" ngxDaterangepickerMd startKey="start" endKey="end" [ranges]="timelineranges" [showCustomRangeLabel]="true" [alwaysShowCalendars]="true" [locale]="{applyLabel: 'ok', format: 'MM/DD/YYYY'}" [autoApply]="true" class="input timelinerange" (change)="timelinechange($event)" id="reportrange" showCancel="true" [showRangeLabelOnInput] ="false">
-            </div>
-            <daypilot-scheduler [config]="config_timesheet" [events]="timeevents" #timesheet id='dp'></daypilot-scheduler>
+      <div class="header_action">
+        Selelct : <input type="text" ngxDaterangepickerMd startKey="start" endKey="end" [ranges]="timelineranges" [showCustomRangeLabel]="true" [alwaysShowCalendars]="true" [locale]="{applyLabel: 'ok', format: 'MM/DD/YYYY'}" [autoApply]="true" class="input timelinerange" (change)="timelinechange($event)" id="reportrange" showCancel="true" [showRangeLabelOnInput] ="false">
+      </div>
+      <daypilot-scheduler [config]="config_timesheet" [events]="timeevents" #timesheet id='dp'></daypilot-scheduler>
     </div>
     <div *ngIf="selectedindex === tabs[1]" role="tabpanel" class="tab-pane active" id="two">
       <div class="alert alert-success" [style.display]="sucessMsg == 1 ? 'block' : 'none'"><span class="succssmsg"></span><span class="closebtn" (click)="hide_msg()">&times;</span>
@@ -712,21 +675,16 @@
           (onDeSelectAll)="manageFilterDeSelectAll($event)"
           >
         </ng-multiselect-dropdown>
-         <!--  <button type="button" class="actionbtn" (click)="manageFilter(3)" [ngClass]="showincompleted == 1 ? ' btn-primary1' : ' btn-primary'">Show InCompleted</button>
-          <button type="button" class="actionbtn" (click)="manageFilter(4)" [ngClass]="showrunning == 1 ? 'btn-primary1' : 'btn-primary'">Show Running</button> 
-          <button type="button" class="actionbtn" (click)="manageFilter(1)" [ngClass]="showcompleted == 1 ? 'btn-primary1' : 'btn-primary'">Show Completed</button>
-          <button type="button" class="actionbtn" (click)="manageFilter(2)" [ngClass]="showarchived == 1 ? 'btn-primary1' : 'btn-primary'">Show Archived</button> -->
         </div>       
       </div>
       <ngx-datatable          
         class="material"
         [rows]="manage_rows"
         [columnMode]="'standard'"
-        [headerHeight]="50"
-        [footerHeight]="50"
-        [rowHeight]="70"
+        [footerHeight]="50"       
         [selected]="selected"
         [scrollbarV]="true"
+        [rowHeight]="getRowHeight"
         [selectionType]="'checkbox'"
         [selectAllRowsOnPage]="false"
         [displayCheck]="displayCheck"
@@ -831,12 +789,9 @@
         <ngx-datatable-column name="Action" [width]="140">          
           <ng-template #deleteBtn let-value="value"  let-row="manage_rows"  ngx-datatable-cell-template>
             <div class="d-flex justify-content-center btn btn-sm btn-outline-secondary">
-              <span  [ngClass] ="{task_start :value.state == 0, task_stop :value.state == 1}" class="ts_status" (click)="onStartTime(value, value.state)" title="{{ value.state == 0 ? 'Start' : 'Stop'}}"></span>
-
+              <span  *ngIf="value.status == 0" [ngClass] ="{task_start :value.state == 0, task_stop :value.state == 1}" class="ts_status" (click)="onStartTime(value, value.state)" title="{{ value.state == 0 ? 'Start' : 'Stop'}}"></span>
               <i *ngIf="value.timelog.length > 0" (click)="archiveTasks(value,filter_no)" class="fa fa-archive" title="Archive"></i>
-
-              <i class="fa fa-trash" *ngIf="value.timelog.length === 0" (click)="deleteTasks(value,filter_no)" title="Delete"></i> 
-              
+              <i class="fa fa-trash" *ngIf="value.timelog.length === 0" (click)="deleteTasks(value,filter_no)" title="Delete"></i>               
               <i class="fa fa-clone" (click)="cloneTasks(value,1,0)" title="Clone"></i>
               <i class="fa fa-clipboard" (click)="cloneTasks(value,2,0)" title="Repeat"></i>
               <i class="fa fa-pencil-square-o" (click)="openConfirmDialog(value)" aria-hidden="true" title="Edit"></i> 
@@ -1018,3 +973,50 @@
      <!--  <pre>{{checkedList}}</pre> -->
   </div>
 </ngx-smart-modal>
+
+
+<jw-modal id="custom-modal-1">
+  <div class="modal-header">
+    <h5 class="modal-title"><i class="fa fa-pencil-square-o"></i>Add Task</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="myBootstrapModal.close()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="form-group row">
+    <div class="col-12">  
+      <div class="ng-autocomplete">
+        <ng-autocomplete 
+          [data]="taskdata"
+          [searchKeyword]="keyword"
+          (selected)='selectEvent($event)'
+          (inputChanged)='onChangeSearch($event)'
+          (inputFocused)='onFocused($event)'
+          [itemTemplate]="itemTemplate"
+          [notFoundTemplate]="notFoundTemplate">                                 
+        </ng-autocomplete>
+        <ng-template #itemTemplate let-item>
+          <div class="item"> 
+            <span [innerHTML]="item"></span>
+          </div>
+        </ng-template>
+        <ng-template #notFoundTemplate let-notFound>
+        <div [innerHTML]="notFound"></div>
+        </ng-template>
+      </div>
+      <!-- <input class="form-control input" type="text" name="bodyText" [(ngModel)]="bodyText" placeholder="Task Name"> -->
+
+    </div>
+  </div>
+  <div class="form-group row">      
+    <div class="col-12">
+       <app-categorymodal  (valueChange)="onCategorySelect($event)" ></app-categorymodal>
+    </div>       
+  </div>  
+   <div class="modal-footer">
+    <button (click)="okModal('custom-modal-1');" class="btn btn-primary" >Ok</button>
+    <button (click)="closeModal('custom-modal-1');" class="btn btn-secondary">Close</button>
+  </div>
+  <!-- <h1>A Custom Modal!</h1>
+  <p>Task Name: <input type="text" [(ngModel)]="bodyText" style="width: 100%" /></p> -->
+  
+</jw-modal>

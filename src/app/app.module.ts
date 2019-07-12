@@ -28,6 +28,9 @@ import { TreeModule } from 'angular-tree-component';
 import { TreeviewModule } from 'ngx-treeview';
 import { ActionComponent } from './action/action.component';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
+import { TaskmodalComponent } from './taskmodal/taskmodal.component';
+import { CategorymodalComponent } from './categorymodal/categorymodal.component';
+import {AutocompleteLibModule} from 'angular-ng-autocomplete';
 
 @NgModule({
   declarations: [
@@ -41,7 +44,9 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
     GroupByPipe,
     PlannerComponent,
     RowsComponent,
-    ActionComponent
+    ActionComponent,
+    TaskmodalComponent,
+    CategorymodalComponent,
   ],
   imports: [
     BrowserModule,
@@ -61,7 +66,8 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
     NgxDaterangepickerMd.forRoot(),
     TreeModule.forRoot(),
     TreeviewModule.forRoot(),
-    NgMultiSelectDropDownModule.forRoot()
+    NgMultiSelectDropDownModule.forRoot(),
+    AutocompleteLibModule
   ],
   providers: [EventEmiterService,{
     provide: HTTP_INTERCEPTORS,
