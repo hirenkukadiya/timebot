@@ -32,6 +32,11 @@ import { TaskmodalComponent } from './taskmodal/taskmodal.component';
 import { CategorymodalComponent } from './categorymodal/categorymodal.component';
 import {AutocompleteLibModule} from 'angular-ng-autocomplete';
 
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { AdminComponent } from './admin/admin.component';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -47,6 +52,7 @@ import {AutocompleteLibModule} from 'angular-ng-autocomplete';
     ActionComponent,
     TaskmodalComponent,
     CategorymodalComponent,
+    AdminComponent,
   ],
   imports: [
     BrowserModule,
@@ -67,7 +73,10 @@ import {AutocompleteLibModule} from 'angular-ng-autocomplete';
     TreeModule.forRoot(),
     TreeviewModule.forRoot(),
     NgMultiSelectDropDownModule.forRoot(),
-    AutocompleteLibModule
+    AutocompleteLibModule,
+    MatAutocompleteModule,
+    MatFormFieldModule,
+    MatInputModule
   ],
   providers: [EventEmiterService,{
     provide: HTTP_INTERCEPTORS,

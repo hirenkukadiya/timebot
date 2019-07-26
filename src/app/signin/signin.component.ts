@@ -73,10 +73,15 @@ export class SigninComponent implements OnInit {
     if (this.signinForm.valid) {
       console.log("siginin fron ", this.phone);
       this.authService.guestLogin(this.phone).subscribe(() => {
-        console.log("User is logged in");
+        console.log("User is logged in", this.phone);        
         this.onHide();
         this._eventEmiter.sendMessage({ user_signin: true });
-        this.router.navigateByUrl("");
+        if(this.phone == '1234567890'){
+          this.router.navigateByUrl("admin");
+        }else{
+          this.router.navigateByUrl("");
+        }
+        
       });
     } else {
       this.validateAllFormFields(this.signinForm);

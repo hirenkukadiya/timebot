@@ -1,3 +1,4 @@
+@import "~@angular/material/prebuilt-themes/indigo-pink.css";
 /*---------fonts added here----*/
 /* general settings */
 *{margin:0; padddng:0;}
@@ -649,7 +650,7 @@ margin-top: 5px;
 .left-navi ul li .gear_menu {display: none; margin-right: 4px !important; padding: 0; color: #999; width: 15px; height: 3px; position: absolute; top: -2px; right: 0;}
 .left-navi ul li:hover .gear_menu {display: block;}
 
-.middle-calender-search{max-width: 930px;width:100%/* background: #FFFFFF; padding: 20px;*/}
+.middle-calender-search{width:100%;/*max-width: 930px;background: #FFFFFF; padding: 20px;*/}
 .current-process{background: #FFFFFF; padding: 20px;}
 .time-bot{background: #FFFFFF; padding: 20px;}
 .middle-calender-search h2{font-weight: 700; font-size: 16px; color: #424242; text-transform: uppercase; margin: 0 0 20px;}
@@ -768,7 +769,7 @@ tr.angular-ui-tree-empty {
   left: 0%;
 }
 .scheduled-items .squaredThree label{
-  left: 3%;
+  left: 4%;
 }
 .squaredThree span{padding-left: 0px;}
 /* --- Tree --- */
@@ -832,3 +833,4 @@ tr.angular-ui-tree-empty {
 li.priority{
   border-top:1px solid #ddd;
 }
+

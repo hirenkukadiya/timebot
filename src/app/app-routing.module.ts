@@ -5,6 +5,7 @@ import { DashboardComponent }   from './dashboard/dashboard.component';
 import { ListsComponent }   from './lists/lists.component';
 import { CategoryComponent }   from './category/category.component';
 import { PlannerComponent }   from './planner/planner.component';
+import { AdminComponent }   from './admin/admin.component';
 
 
 const routes: Routes = [
@@ -12,7 +13,9 @@ const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent },
   { path: 'lists', component: ListsComponent },
   { path: 'category', component: CategoryComponent },
-  { path: 'planner', component: PlannerComponent }
+  { path: 'planner', component: PlannerComponent },
+  { path: 'admin', component: AdminComponent },
+  { path: '', redirectTo: '/admin', pathMatch: 'full' },
 ];
 
 

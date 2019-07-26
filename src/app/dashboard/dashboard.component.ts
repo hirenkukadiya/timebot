@@ -31,7 +31,7 @@ import {
 } from "@angular/cdk/drag-drop";
 
 import { Observable, of } from "rxjs";
-import { map, filter, scan } from "rxjs/operators";
+import { map, filter, scan, startWith } from "rxjs/operators";
 import { webSocket } from "rxjs/webSocket";
 import { ajax } from "rxjs/ajax";
 import { TestScheduler } from "rxjs/testing";
@@ -44,6 +44,7 @@ import { isNil } from 'lodash';
 import { DropdownTreeviewSelectI18n } from './dropdown-treeview-select-i18n';
 import { ActionComponent } from "../action/action.component";
 import { ModalService } from '../services/modal.service';
+import { CategorymodalComponent } from '../categorymodal/categorymodal.component';
 
 @Component({
   selector: "app-dashboard",
@@ -63,6 +64,7 @@ export class DashboardComponent implements OnInit {
   @ViewChild("timesheet") 
   timesheet: DayPilotSchedulerComponent;
   @ViewChild(DropdownTreeviewComponent) dropdownTreeviewComponent: DropdownTreeviewComponent;
+  @ViewChild('myTable') table: any;
 
   objectKeys = Object.keys;
   tasks: Task[] = [];
@@ -72,7 +74,7 @@ export class DashboardComponent implements OnInit {
   timesheet_tasks: Task[] = [];
   filterTasks: Task[] = [];
   all_task: Task[] = [];
-  priorityTasks = {};
+  priorityTasks = [];
   taskForm: any;
   task_name: string;
   is_add_task: boolean;
@@ -111,6 +113,7 @@ export class DashboardComponent implements OnInit {
   checkedList = [];
   userID:string;
   tasklable = "Edit Task";
+  popupplace = 0;
   updateCate = "";
   validationerror = 0; 
   daypilotstart = new Date();
@@ -122,31 +125,14 @@ export class DashboardComponent implements OnInit {
   manageFilterList = [];
   manageFilterselected = [];
   bodyText: string;
+  popuptaskID : any;
   timesheet_arg: any;
   isLoading = true;
   keyword = 'name';
-  taskdata = [
-     {
-       id: 1,
-       name: 'Usa'
-     },
-     {
-       id: 2,
-       name: 'England'
-     },
-     {
-       id: 3,
-       name: 'test'
-     },
-     {
-       id: 4,
-       name: 'work'
-     },
-     {
-       id: 5,
-       name: 'Social'
-     }
-  ];
+  taskdata = [];
+  temp = [];
+  popuplabel = "Add Task";
+  expanded: any = {};
   ranges: any = {
     'Date': [moment(), moment()],
     'Today': [moment(), moment()],
@@ -207,6 +193,8 @@ export class DashboardComponent implements OnInit {
     }
   ]; 
   dropdownSettings = {};
+
+
   private dropdownTreeviewSelectI18n: DropdownTreeviewSelectI18n;
   constructor(
     private formBuilder: FormBuilder,
@@ -217,6 +205,7 @@ export class DashboardComponent implements OnInit {
     private orderBy: OrderBy,
     public ngxSmartModalService: NgxSmartModalService,
     public i18n: TreeviewI18n,
+    
     private modalService: ModalService
     ) {
     this.dropdownTreeviewSelectI18n = i18n as DropdownTreeviewSelectI18n;
@@ -228,10 +217,14 @@ export class DashboardComponent implements OnInit {
       onUpdate: (event: any) => {      
         this.postChangesToServer();
       }
-    };     
+    };
   } 
+  filteredOptions: Observable<string[]>;
+  options_abc: string[] = ['One', 'Two', 'Three'];
+  myControl_abc = new FormControl();
 
   ngOnInit() {    
+
     this.defaultUserLogin();
     this.createTaskForm();
     this.getCategory();
@@ -272,6 +265,18 @@ export class DashboardComponent implements OnInit {
     this.catitems = [];
     this.bodyText = '';
     //this.closeModal('custom-modal-1');
+
+    this.filteredOptions = this.myControl_abc.valueChanges
+      .pipe(
+        startWith(''),
+        map(value => this._filter(value))
+      );
+  }
+  private _filter(value: string): any[] {
+    const filterValue = value.toLowerCase();
+ 
+    //return this.options_abc.filter(option => option.toLowerCase().includes(filterValue));
+    return this.taskdata.filter(option => option.name.toLowerCase().includes(filterValue));
   }
   config = {  
     showActionButtons: true,
@@ -313,6 +318,7 @@ export class DashboardComponent implements OnInit {
       }
       if (args.data.class === "Errands") {
         args.data.backColor = "#FF4000";
+        args.data.fontColor = "#FFF";
       }
       if (args.data.class === "Family & Friends") {
         args.data.backColor = "#3B0B0B";
@@ -324,9 +330,11 @@ export class DashboardComponent implements OnInit {
       }
       if (args.data.class === "Personal") {
         args.data.backColor = "#5F4C0B";
+        args.data.fontColor = "#FFF";
       } 
       if (args.data.class === "Routine") {
         args.data.backColor = "#04B431";
+        args.data.fontColor = "#FFF";
       }
       if (args.data.class === "Social & Leisure") {
         args.data.backColor = "#FA58F4";
@@ -336,6 +344,7 @@ export class DashboardComponent implements OnInit {
       }
       if (args.data.class === "Work") {
         args.data.backColor = "#6E6E6E";
+        args.data.fontColor = "#FFF";
       }
       if (args.data.class === "Unassigned") {
         args.data.backColor = "#F2D7D5";
@@ -365,42 +374,6 @@ export class DashboardComponent implements OnInit {
       let obj = this;
       this.openModal('custom-modal-1', args);
       args.control.clearSelection();
-      //this.modalService.open("custom-modal-1"); 
-      // let value = [];
-      // obj.openConfirmDialog(value);
-      //let dp = this.timesheet.control;
-      /*DayPilot.Modal.prompt("New Task","",this).then(function(
-        modal
-        ) {    
-        // console.log('args', args);
-        // console.log('modal', modal);  
-        //  console.log('this', this);  
-        //dp.clearSelection();
-        if (!modal.result) {
-          args.control.clearSelection();
-          return;
-        }
-        let name = modal.result;
-        let category_id = "";
-        let start = Date.parse(args.start.value);
-        let end = Date.parse(args.end.value);
-        let timelogData: Array<any> = [{ start: start, end: end }];
-        obj.taskService.addCalendarTask(
-          { name } as Task,
-          { category_id } as any,
-          timelogData
-          )
-        .subscribe(hero => {
-          var click = 0;
-          let task = new Task();
-          task.taskID = hero.taskID;              
-          task.parenttask = hero.taskID;
-          obj.taskService.updateTask(task).subscribe(hero => {
-            obj.getTasks(click);
-            obj.when_Duefilter();
-          }); 
-        });
-      });*/
     },
     onEventMoved: args => {
       //this.message("Event moved");
@@ -570,12 +543,12 @@ export class DashboardComponent implements OnInit {
     }
     var taskdatas = [];
     for (var index in tasks_anassgin) {
-        var newdata = [];
+        var newdata = {};
         newdata['id'] = tasks_anassgin[index].taskID;
         newdata['name'] = tasks_anassgin[index].name;
         taskdatas.push(newdata);
     }
-    //this.taskdata = taskdatas; 
+    this.taskdata = JSON.parse(JSON.stringify(taskdatas));
     this.tasks = tasks_anassgin;
     this.timesheet_tasks = timesheet_tasks;
     this.cat_name = Array.from(
@@ -678,15 +651,24 @@ export class DashboardComponent implements OnInit {
       return 0;
     });
     for(const row of manageRows) {
-        row.height = 70;
+        if(row.task.length > 20){
+          row.height = 80;
+        }else{
+          row.height = 50;
+        }        
     }
     //console.log('manageRows22',manageRows);
+    this.temp = [...manageRows];
     this.manage_rows = manageRows;   
     this.getCalendarTask(this.timesheet_tasks);
     if (this.filter_no == 1) {
       this.myTree = data_tree;
     }else{
-      this.when_Duefilter();
+      if (this.filter_no == 2) {
+        this.filter(this.filter_no, 0);
+      }else{
+        this.when_Duefilter();
+      }
     }
     /*Temp Data*/
     const obj: Object ={
@@ -750,6 +732,7 @@ export class DashboardComponent implements OnInit {
         children: this.getChilCat(cateId)
       });
        this.items.push(childrenCategory);
+       //console.log(' this.items',  this.items);
        this.catitems.push(childrenCategory);
      }
    }
@@ -877,13 +860,15 @@ export class DashboardComponent implements OnInit {
     this.selectItem(item);
   }  
   selectItem(item: TreeviewItem) {
+    console.log('Here',item.value + ' this.catvalue '+this.catvalue);
     if (this.dropdownTreeviewSelectI18n.selectedItem !== item) {        
       this.dropdownTreeviewSelectI18n.selectedItem = item;
-      if (this.catvalue !== item.value) {
-            console.log('Here',item.value);
+      if (this.catvalue !== item.value) {          
             this.catvalue = item.value;
             this.valueChange.emit(item.value);
           }
+        }else{
+          this.valueChange.emit(item.value);
         }
       this.dropdownTreeviewComponent.dropdownDirective.close();
   }
@@ -938,8 +923,11 @@ export class DashboardComponent implements OnInit {
   }
   toggleCheckBox(event,filter){
     let task = new Task();
-    let taskID = event.taskID;
-    
+    let taskID = event.taskID;    
+    let Stime = Number(new Date(Date.now() - event.duration * 60000));
+    let Etime = Number(new Date());
+    let timelogData: Array<any> = [{ "start": Stime, "end": Etime}];
+
     if (event.status == 0 && (event.enddate == "" || event.enddate==undefined)) {
       if(event.frequency!="" && event.frequency!=undefined){
         let repeatday = [];
@@ -966,10 +954,8 @@ export class DashboardComponent implements OnInit {
               var todays = moment(event.dueon).add(i,'days').format('MM/DD/YYYY'); 
               var date = moment(todays);
               var today = date.day();
-              let occur = [];
-              
-              for (var index in days) {     
-
+              let occur = [];              
+              for (var index in days) { 
                 var dayINeed = parseInt(days[index]);                  
                 if (this.inArray(today, days)) {
                   if(todayoccur < dayINeed)
@@ -1007,6 +993,9 @@ export class DashboardComponent implements OnInit {
                  task.timelog = oldtimeLog;
                 }
               }
+            }                
+            if(event.timelog.length == 0){              
+              task.timelog = timelogData;      
             }
             console.log('duedate', duedate);
             task.enddate = this.getHighestTime(event.timelog);
@@ -1035,7 +1024,9 @@ export class DashboardComponent implements OnInit {
               }
             }
           }
-
+          if(event.timelog.length == 0){
+            task.timelog = timelogData;      
+          }
           this.taskService.updateTask(task).subscribe(task => {
             event.state = 0;                  
             event.dueon = moment(new Date()).add(1,'days').format('MM/DD/YYYY '+now.getHours()+':'+now.getMinutes()+':'+now.getSeconds()+'');
@@ -1060,6 +1051,9 @@ export class DashboardComponent implements OnInit {
               }
             }
           }
+          if(event.timelog.length == 0){
+            task.timelog = timelogData;      
+          }
           task.enddate = this.getHighestTime(event.timelog);
           task.modifiedON = new Date();
           this.taskService.updateTask(task).subscribe(task => {
@@ -1075,9 +1069,12 @@ export class DashboardComponent implements OnInit {
     let tstatus = 0;
     if(event.status!=undefined && event.status == 0){
      tstatus = 1;
+      if(event.timelog.length == 0){
+        task.timelog = timelogData;      
+      }
     }
-    if(event.state == 1){
-      let oldtimeLog:any;
+    let oldtimeLog:any;
+    if(event.state == 1){      
       oldtimeLog = event.timelog;
       let oldIndex = oldtimeLog.length - 1;
       if(oldtimeLog.length > 0){
@@ -1086,7 +1083,7 @@ export class DashboardComponent implements OnInit {
          task.timelog = oldtimeLog;
         }
       }
-    }
+    }    
     task.status = tstatus;
     task.state = 0;
     task.enddate = moment(new Date()).format("MM/DD/YYYY HH:mm:ss");  
@@ -1118,6 +1115,7 @@ export class DashboardComponent implements OnInit {
         task['frequency'] = 0;
         task['repeatday'] = '';
         task['duration'] = 30;
+        task['timelog'] = [];
 
         this.taskService
         .addTask(task, { category_id } as any)
@@ -1664,7 +1662,7 @@ export class DashboardComponent implements OnInit {
     });
 
     this.priorityTasks = sortable;
-    //console.log('this.priorityTasks',this.priorityTasks);
+    console.log('this.priorityTasks',this.priorityTasks);
   }
   when_Duefilter() {
     this.plannerservice.getData().subscribe(planner => {
@@ -2066,7 +2064,9 @@ export class DashboardComponent implements OnInit {
       let timelogData = task[index].timelog;
       let taskName = task[index].name;
       let taskID = task[index].taskID;
-      let category = task[index].category_name;
+      // let category = task[index].category_name;
+      let parentCateName = this.getCategoryParent(task[index].category_id);
+      let category = parentCateName['label'];
       if (timelogData.length > 0) {
         for (let i in timelogData) {
           let startTime = this.convertStamptoDate(timelogData[i].start);
@@ -2391,8 +2391,8 @@ export class DashboardComponent implements OnInit {
       this.getTasks(click);   
     });
   }
-  openConfirmDialog(value) { 
-
+  openConfirmDialog(value,tab) { 
+    this.popupplace = tab;
     this.edittaskForm.controls.task.markAsUntouched({ onlySelf: true });
     this.edittaskForm.controls.task.markAsPristine({ onlySelf: true });
     this.checkedList = [];
@@ -2503,28 +2503,7 @@ export class DashboardComponent implements OnInit {
       return;
     }
     //console.log('Form Value ', this.edittaskForm.value.frequency);
-    if(frequency!=""){
-      if(frequency == 1){
-          if(this.edittaskForm.value.starttime=="" || this.edittaskForm.value.starttime==undefined){
-            this.validationerror = 2;          
-            return;
-          }
-          starttime = this.edittaskForm.value.starttime;
-      }else if(frequency == 2){
-          if(this.checkedList.length == 0){
-           this.validationerror = 3;           
-           return;
-         }
-         var weeklynumber = this.checkedList.join();
-         repeatday = weeklynumber;
-      }else if(frequency == 3){
-        if(this.edittaskForm.value.repeatday=="" || this.edittaskForm.value.repeatday==undefined){
-         this.validationerror = 4;          
-         return;
-        }
-        repeatday = this.edittaskForm.value.repeatday;
-      }
-    }
+
      var now = new Date(); 
     if(duedate!="" && duedate!=1){      
       if(duedate!=7){
@@ -2542,6 +2521,37 @@ export class DashboardComponent implements OnInit {
       }
     }else{
       dueon = "";
+    }
+    if(frequency!=""){
+      if(frequency == 1){
+          if(this.edittaskForm.value.starttime=="" || this.edittaskForm.value.starttime==undefined){
+            this.validationerror = 2;          
+            return;
+          }
+          starttime = this.edittaskForm.value.starttime;
+      }else if(frequency == 2){
+          if(this.checkedList.length == 0){
+           this.validationerror = 3;           
+           return;
+         }
+        var weeklynumber = this.checkedList.join();
+        let todayDate = Date.parse(new Date().toDateString());                      
+        let occurDate = Date.parse(moment(dueon).format('L'));
+        if(todayDate == occurDate){
+          var today = moment().day();
+          if (!this.inArray(today, weeklynumber)) {
+           this.validationerror = 5;           
+           return;
+          }
+        }
+        repeatday = weeklynumber;
+      }else if(frequency == 3){
+        if(this.edittaskForm.value.repeatday=="" || this.edittaskForm.value.repeatday==undefined){
+         this.validationerror = 4;          
+         return;
+        }
+        repeatday = this.edittaskForm.value.repeatday;
+      }
     }
     if(frequency == 3){
       var day = repeatday;
@@ -2577,8 +2587,7 @@ export class DashboardComponent implements OnInit {
     task.name = taskName;
     task.category_id = category_id;  
     task.description = description; 
-    task.priority = priority;       
-    task.taskID = taskID;
+    task.priority = priority;  
     task.duration = duration;
     task.dueon = dueon;
     task.setDate = setDate;
@@ -2594,6 +2603,7 @@ export class DashboardComponent implements OnInit {
     //console.log('Input Data',task);
     if (this.edittaskForm.valid) {
       if(taskID!=""){
+        task.taskID = taskID;
         this.taskService.updateTask(task).subscribe(task => {
           var click = 0;
           this.getTasks(click);
@@ -2601,6 +2611,19 @@ export class DashboardComponent implements OnInit {
         $(".succssmsg").html("<strong>Success!</strong> Task has been updated.");
       }else{
         task.state = 0;
+        if(this.popupplace == 1){
+          let todayDate = Date.parse(new Date().toDateString());                      
+          let occurDate = Date.parse(moment(dueon).format('L'));
+          if(todayDate == occurDate){            
+            let Stime = Number(new Date());
+            let Etime = "";
+            let timelogData: Array<any> = [
+            { "start": Stime, "end": Etime}
+            ];
+            task.state = 1;
+            task.timelog = timelogData;            
+          }
+        }
         this.taskService.addTask(task,{ category_id } as any)
         .subscribe(hero => {   
           let task = new Task();
@@ -2617,6 +2640,7 @@ export class DashboardComponent implements OnInit {
       this.validationerror = 0;
       this.sucessMsg = 1; 
       this.catvalue = '';
+      this.popupplace = 0;
       this.ngxSmartModalService.close('myBootstrapModal');
     }else{
       this.validateAllFormFields(this.edittaskForm);
@@ -2816,6 +2840,8 @@ export class DashboardComponent implements OnInit {
     //console.log("arg ", args);    
     this.timesheet_arg = args; // store timesheet argeument in class variable.
     this.modalService.open(id);
+    this.popuptaskID = "";
+    this.catvalue = "";
   }
 
   closeModal(id: string) {
@@ -2823,10 +2849,12 @@ export class DashboardComponent implements OnInit {
     this.modalService.close(id);
     this.bodyText = "";
     this.catvalue = "";
+    this.popuptaskID = "";
     this.timesheet_arg = null; // clear timesheet argeument in class variable.
   }
   okModal(id: string) {
-    //console.log("modal ok");
+    console.log("modal ok");
+   
     this.modalService.close(id);
     let name = this.bodyText;
     let start = Date.parse(this.timesheet_arg.start.value);
@@ -2837,38 +2865,67 @@ export class DashboardComponent implements OnInit {
     if(this.catvalue == undefined || category_id==""){
       category_id = "";
     }
-    //console.log('this category', this.catvalue);
+    // console.log('this category', this.catvalue);
+    // return;
     if(name){
         let task = new Task();
-        task['name'] = name;
-        task['dueon'] = dueon;
-        task['priority'] = 3;
-        task['state'] = 0;
-        task['modifiedON'] = new Date();
-        task['discretionary'] = 1;
-        task['routine'] = 0;
-        task['frequency'] = 0;
-        task['repeatday'] = '';
-        task['duration'] = 30;
-        task['timelog'] = timelogData;
-        this.taskService
-        .addTask(task, { category_id } as any)
-        .subscribe(hero => {
-          let task = new Task();
-          task.taskID = hero.taskID;              
-          task.parenttask = hero.taskID;
-            this.taskService.updateTask(task).subscribe(tasks => {
-              this.getTasks(0);
-              this.bodyText = "";
-              this.catvalue = "";
-              this.category_id = "";
-            });
-        })
+        /*Edit Task */
+        if(this.popuptaskID){
+          let oldtimeLog:any;
+          for (let i in this.tasks) {
+            if(this.popuptaskID == this.tasks[i].taskID){             
+              oldtimeLog = this.tasks[i].timelog;
+            }
+          }
+          if(oldtimeLog.length > 0){
+            oldtimeLog.push(timelogData[0]);
+            task['timelog'] = oldtimeLog;           
+          }else{
+            task['timelog'] = timelogData;
+          }
+          task['category_id'] = category_id;
+          task['taskID'] = this.popuptaskID;
+          task['modifiedON'] = new Date();        
+          this.taskService.updateTask(task).subscribe(tasks => {
+            this.getTasks(0);
+            this.bodyText = "";
+            this.catvalue = "";
+            this.category_id = "";
+          });
+
+        }else{    
+          /* Add task */         
+          task['name'] = name;
+          task['dueon'] = dueon;
+          task['priority'] = 3;
+          task['state'] = 0;
+          task['modifiedON'] = new Date();
+          task['discretionary'] = 1;
+          task['routine'] = 0;
+          task['frequency'] = 0;
+          task['repeatday'] = '';
+          task['duration'] = 30;
+          task['timelog'] = timelogData;
+          this.taskService
+          .addTask(task, { category_id } as any)
+          .subscribe(hero => {
+            let task = new Task();
+            task.taskID = hero.taskID;              
+            task.parenttask = hero.taskID;
+              this.taskService.updateTask(task).subscribe(tasks => {
+                this.getTasks(0);
+                this.bodyText = "";
+                this.catvalue = "";
+                this.category_id = "";
+              });
+          })
+        }
+        
     }    
     // console.log("task Name", name);
     // console.log("timelogData ", timelogData);
   }
-  onCategorySelect(data: any){
+  onCategorySelect(data: any){    
     console.log("data ",data);
     this.category_id = data;
     this.catvalue = data;
@@ -2889,6 +2946,58 @@ export class DashboardComponent implements OnInit {
     // do something when input is focused
   }
 
-
+  getSelectedTask(val: any){
+    if(val){
+      console.log('val', val);
+      this.popuptaskID = val;
+      for (let i in this.tasks) {
+        if(val == this.tasks[i].taskID){             
+          this.catvalue =  this.tasks[i].category_id;
+          this.popuplabel = "Edit Task";
+        }
+      }     
+    }else{
+      this.popuptaskID = "";
+      this.popuplabel = "Add Task";
+    }    
+    //console.log("value ", val);
+  }
+  updateFilter(event,filter) {
+    
+    var val = event.target.value.toLowerCase();
+    if(filter == 'priority'){
+      val = event.target.value;
+    }
+    if(val){      
+      const temp = this.temp.filter(function(d) {
+        if(filter == 'name'){           
+            return d.task.toLowerCase().indexOf(val) !== -1 || !val;
+        }        
+        if(filter == 'cate'){
+            return d.category.toLowerCase().indexOf(val) !== -1 || !val;
+        }
+        if(filter == 'priority'){
+            if(val == 5){              
+               if(d.priority == ""){  
+                val = '';  
+                return d.priority.toString().indexOf(val) !== -1 || !val;                
+               }
+            }else{
+              return d.priority.toString().indexOf(val) !== -1 || !val;
+            }            
+        }
+      });
+      this.manage_rows = temp;
+    }else{
+      console.log('No value');
+      this.manage_rows = this.temp;
+    }
+  }
+  toggleExpandRow(row) {
+    this.table.rowDetail.toggleExpandRow(row);
+  }
+  onDetailToggle(event) {
+    console.log('Detail Toggled', event);
+  }
   
 }

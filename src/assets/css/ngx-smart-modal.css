@@ -1,5 +1,5 @@
 body.dialog-open {
-  overflow: hidden; }
+  /*overflow: hidden;*/ }
 
 .nsm-dialog-btn-close {
   border: 0;
@@ -144,7 +144,7 @@ body.dialog-open {
     height: 30px;
     padding: 0 8px !important;
     margin-bottom: 10px;
-    width: 93%;
+    width: 99%;
 }
 .edit-form .select{
     border: 1px solid #ececec !important;
@@ -153,7 +153,7 @@ body.dialog-open {
     height: 30px;
     padding: 0 8px !important;
     margin-bottom: 10px;
-    width: 85%;
+    width: 98%;
 }
 
 .sortable .sort-btn:before {
@@ -171,25 +171,19 @@ body.dialog-open {
     background: #f8f8f8;
     line-height: 40px;
     height: 29px;
-    padding: 0 8px !important;
+    padding: 0 0px !important;
     margin-bottom: 10px;
     width: 20%;    
-    margin-left: 10px !important;
+    margin-left: 0px !important;
     margin-top: 5px !important;
-    margin-right: 5px !important;
+    margin-right: 2px !important;
+    outline: none;
 }
 .header_action{
   display: -webkit-box;
   margin-bottom: 10px !important;
 }
-.material input[type=text] {
-  font-size: 14px;
-  display: block;
-  background: transparent;
-  width: 100%;
-  border: none;
-  border-bottom: 1.5px solid #5264AE !important;
-}
+
 .datatable-icon-right::before{
   content: "\25BA";
 }
@@ -212,6 +206,9 @@ body.dialog-open {
     line-height: 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+}
+.datatable-icon-down:before {
+    content: "\25bc";
 }
 .datatable-body-row {
   /*vertical-align: top;*/

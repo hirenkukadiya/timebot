@@ -1,5 +1,6 @@
-import { Component, OnInit, Input, ViewChild, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, Output, EventEmitter,OnChanges, SimpleChanges  } from '@angular/core';
 import { TreeviewI18n, TreeviewItem, TreeviewConfig, DropdownTreeviewComponent, TreeviewHelper } from 'ngx-treeview';
+import { isNil } from 'lodash';
 import { DropdownTreeviewSelectI18n } from '../dashboard/dropdown-treeview-select-i18n';
 import { OrderBy } from "../util/orderBy.pipe";
 import { GroupByPipe } from "../util/group-by.pipe";
@@ -16,10 +17,11 @@ import { EventEmiterService } from "../services/event.emmiter.service";
     { provide: TreeviewI18n, useClass: DropdownTreeviewSelectI18n }
   ]
 })
-export class CategorymodalComponent implements OnInit {
+export class CategorymodalComponent implements OnInit,OnChanges {
   
   @Input() items: TreeviewItem[];
   @Input() catvalue: any;
+  @Input() value: any;
   @Output() valueChange = new EventEmitter<any>();
   @ViewChild(DropdownTreeviewComponent) dropdownTreeviewComponent: DropdownTreeviewComponent;
   
@@ -27,6 +29,7 @@ export class CategorymodalComponent implements OnInit {
   category: any;
   category_lists: [];
   category_id: string;
+  filterText: any;
   catconfig = TreeviewConfig.create({
     hasFilter: true,
     hasAllCheckBox: false,
@@ -45,12 +48,31 @@ export class CategorymodalComponent implements OnInit {
   }
 
   ngOnInit() {
+    //console.log("catvalue ",this.catvalue);
     this.items = [];
     var userdata = this.authService.getUser();
     this.userID = userdata['_id'];
     this.getCategory();
   }
+  /**
+  * This method call when @Input value change
+  */
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes.value.firstChange == false && changes.value.currentValue != undefined) {
+      this.updateSelectedItem();
+    }
+  }
+  
 
+    private updateSelectedItem() {
+        if (!isNil(this.items)) {
+            const selectedItem = TreeviewHelper.findItemInList(this.items, this.value);
+            //console.log("selectedItem  ",selectedItem);
+            if (selectedItem) {
+               this.selectItem(selectedItem);
+            }
+        }
+    }
   getCategory(): void {
     this.taskService.getCategory().subscribe(category => {
       this.filterCategroy(category);
@@ -130,6 +152,7 @@ export class CategorymodalComponent implements OnInit {
     this.selectItem(item);
   }
   selectItem(item: TreeviewItem) {
+    //console.log('Here Category Model');
     if (this.dropdownTreeviewSelectI18n.selectedItem !== item) {
       this.dropdownTreeviewSelectI18n.selectedItem = item;
       if (this.catvalue !== item.value) {
