@@ -104,7 +104,7 @@ header nav ul li a:hover,header nav ul li a.activeSmall {
 .master-mid{margin:0 30px;}
 .left-master-search{float:left; width:270px;}
 .middle-calender-search{float:left; max-width:913px;margin:0 20px;}
-.advertisement-master{float:left; width:300px;}
+.advertisement-master{float:left; width:250px;}
 .advertise-list{margin-bottom:20px; height:250px;}
 /*-------------left todo css-------*/
 /*.todomaster-panels{padding:10px 0; background:#fff;}*/
@@ -421,14 +421,14 @@ background:none;
 @media (max-width: 1395px) {	
 .middle-calender-search {
     float: left;
-    max-width: 678px;
+    max-width: 720px;
     margin: 0 20px;
 }	
 }
 @media (max-width: 1370px) {	
 .middle-calender-search {
     float: left;
-    max-width: 650px;
+    max-width: 720px;
     margin: 0 20px;
 }	
 }
@@ -652,7 +652,7 @@ margin-top: 5px;
 
 .middle-calender-search{width:100%;/*max-width: 930px;background: #FFFFFF; padding: 20px;*/}
 .current-process{background: #FFFFFF; padding: 20px;}
-.time-bot{background: #FFFFFF; padding: 20px;}
+.time-bot{/*background: #FFFFFF; padding: 20px;*/}
 .middle-calender-search h2{font-weight: 700; font-size: 16px; color: #424242; text-transform: uppercase; margin: 0 0 20px;}
  
 .current-process{margin-bottom: 30px;}

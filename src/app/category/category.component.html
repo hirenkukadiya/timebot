@@ -4,6 +4,7 @@
 
 	<div class="left-master-search">
 		<div class="todomaster-panels">
+			<h4 style="padding: 10px 15px;font-weight: 500;border-bottom: 1px solid #ececec;">Manage Category </h4>
 			<div class="list-items">
 				<tree-root [nodes]="nodes" [options]="options">
 					<ng-template #treeNodeTemplate let-node="node" let-index="index" >
@@ -20,7 +21,7 @@
 			<div class="form_input">
 				<label for="email">Parent Category <input type="Button" value="Add New" class="addNew" (click)="addNew()" *ngIf="showbutton"></label>
 				<span class="errormsg" *ngIf="validationerror == 2">Select Parent Category</span>
-				<span class="errormsg" *ngIf="validationerror == 1">Enter Category</span>
+				<span class="errormsg" *ngIf="validationerror == 1 && name?.length == 0">Enter Category</span>
 				<input type="text" name="parent_name" value='' formControlName="parent_name" class="inputsearch" [(ngModel)]="parent_name" disabled="disabled">			
 				<label for="email">Category</label>
 				<input type="text" maxlength="50" class="inputsearch" name="name" formControlName="name"  [(ngModel)]="name" required>

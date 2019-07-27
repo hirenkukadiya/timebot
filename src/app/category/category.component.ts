@@ -216,6 +216,7 @@ export class CategoryComponent implements OnInit {
     this.CategoryForm.controls.parent.markAsUntouched({ onlySelf: true });
     this.CategoryForm.controls.parent.markAsPristine({ onlySelf: true });
     this.edit = false;
+    this.validationerror = 0;
     this.getCategory();
   }
   getCategoryName(cateId){

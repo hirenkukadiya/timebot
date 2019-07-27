@@ -271,10 +271,10 @@ export class DashboardComponent implements OnInit {
         startWith(''),
         map(value => this._filter(value))
       );
+      console.log('this.timesheet.control ', this.timesheet);  
   }
   private _filter(value: string): any[] {
-    const filterValue = value.toLowerCase();
- 
+    const filterValue = value.toLowerCase(); 
     //return this.options_abc.filter(option => option.toLowerCase().includes(filterValue));
     return this.taskdata.filter(option => option.name.toLowerCase().includes(filterValue));
   }
@@ -303,7 +303,7 @@ export class DashboardComponent implements OnInit {
         console.log("Args1", e);
       },
     onBeforeEventRender: function(args) {
-      //args.Columns[0].Html = args.Date.ToString("dddd");
+     
       if (args.data.class === "Career Development") {
         args.data.backColor = "#8A084B";
         args.data.fontColor = "#FFF";
@@ -473,13 +473,9 @@ export class DashboardComponent implements OnInit {
         this.getTasks(click);
       }      
     },
-    // onAfterRender: args => { 
-    //   var startHour = 17;
-    //   var startDate = (this.timesheet.control.startDate as DayPilot.Date); 
-    //   startDate = startDate.addHours(startHour); //Adds the nr of hours ontop of current date 
-    //   console.log('startDate',startDate);
-    //   this.timesheet.control.scrollTo(startDate);
-    // },
+    onAfterRender: args => { 
+     // console.log('arggs ', args.control);
+    },
     eventMoveHandling: "Update",
     eventResizeHandling: "Update",
     eventDeleteHandling: "Update",
@@ -501,7 +497,9 @@ export class DashboardComponent implements OnInit {
   });
 
   getTasks(click): void {
-    //console.log("get tasks...");
+    
+
+
     this.taskService.getTasks().subscribe(newtasks => {
       //console.log("view update tasks",JSON.parse(JSON.stringify(newtasks))  );
       this.filterTask(newtasks,click);
@@ -629,7 +627,7 @@ export class DashboardComponent implements OnInit {
         if(all_task[index]['frequency'] == 3){
           frequency = 'Monthly';
         }
-        addRows['dueOn'] = all_task[index]['dueon'];
+        addRows['dueOn'] =  moment(all_task[index]['dueon']).format("MM/DD/YYYY");
         addRows['whenDue'] = "No Due";
         if(all_task[index]['dueon']!=undefined && all_task[index]['dueon']!=""){
           addRows['whenDue'] = this.getwhendue(all_task[index]['dueon'],'1',setDate); 
@@ -651,15 +649,16 @@ export class DashboardComponent implements OnInit {
       return 0;
     });
     for(const row of manageRows) {
+      row.height = 0;
         if(row.task.length > 20){
           row.height = 80;
         }else{
-          row.height = 50;
+          row.height = 60;
         }        
     }
+    this.manage_rows = manageRows;  
     //console.log('manageRows22',manageRows);
     this.temp = [...manageRows];
-    this.manage_rows = manageRows;   
     this.getCalendarTask(this.timesheet_tasks);
     if (this.filter_no == 1) {
       this.myTree = data_tree;
@@ -2504,7 +2503,7 @@ export class DashboardComponent implements OnInit {
     }
     //console.log('Form Value ', this.edittaskForm.value.frequency);
 
-     var now = new Date(); 
+    var now = new Date(); 
     if(duedate!="" && duedate!=1){      
       if(duedate!=7){
         var res = duedate.split(" ");
@@ -2540,8 +2539,8 @@ export class DashboardComponent implements OnInit {
         if(todayDate == occurDate){
           var today = moment().day();
           if (!this.inArray(today, weeklynumber)) {
-           this.validationerror = 5;           
-           return;
+           // this.validationerror = 5;           
+           // return;
           }
         }
         repeatday = weeklynumber;
@@ -2842,9 +2841,14 @@ export class DashboardComponent implements OnInit {
     this.modalService.open(id);
     this.popuptaskID = "";
     this.catvalue = "";
+    var hours = this.daypilotstart.getHours();
+    var minutes = this.daypilotstart.getMinutes();
+    hours = parseFloat(hours+'.'+minutes);
+    this.timesheet.control.setScroll(141*hours,500);
   }
 
   closeModal(id: string) {
+    
     this.timesheet.control.clearSelection();
     this.modalService.close(id);
     this.bodyText = "";
@@ -2968,6 +2972,7 @@ export class DashboardComponent implements OnInit {
     if(filter == 'priority'){
       val = event.target.value;
     }
+    console.log('val ', val);
     if(val){      
       const temp = this.temp.filter(function(d) {
         if(filter == 'name'){           
@@ -2978,9 +2983,10 @@ export class DashboardComponent implements OnInit {
         }
         if(filter == 'priority'){
             if(val == 5){              
-               if(d.priority == ""){  
-                val = '';  
-                return d.priority.toString().indexOf(val) !== -1 || !val;                
+               if(d.priority == ""){
+               console.log('Hello Here');  
+                var vals = '';  
+                return d.priority.toString().indexOf(vals) !== -1 || !vals;                
                }
             }else{
               return d.priority.toString().indexOf(val) !== -1 || !val;

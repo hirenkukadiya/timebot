@@ -21,8 +21,9 @@
 }
 .errormsg{
 	background-color: #ea4d5b;
-    border-color: #abe7ed;
     color: #fff;
     margin-bottom: 6px !important;
     text-align: center;
+    padding: 4px 10px;
+    font-weight: 400;
 }

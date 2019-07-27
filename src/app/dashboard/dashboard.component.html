@@ -663,22 +663,8 @@
       <div class="alert alert-success" [style.display]="sucessMsg == 1 ? 'block' : 'none'"><span class="succssmsg"></span><span class="closebtn" (click)="hide_msg()">&times;</span>
       </div>
       <div class="header_action">
-        <button type="button" class="btn btn-primary" (click)="openConfirmDialog(value='',2)">Add</button>
-        <button type="button" class="btn btn-danger" (click)="remove()" [style.display]="updateDisplay == 1 ? 'inline-block' : 'none'">Delete/Archive</button>
-        <select (change)="multiupdateValue(c.value,'cate')" #c class="updatecate select" value="updateCate" [style.display]="updateDisplay == 1 ? 'block' : 'none'">
-            <option value="">Update Category</option>
-            <option *ngFor="let key of category" [value]="key.value">{{
-              key.label}}
-            </option>                
-        </select>
-        <select (change)="multiupdateValue(p.value,'pr')" #p class="updatecate select" [style.display]="updateDisplay == 1 ? 'block' : 'none'">
-            <option value="">Update Priority</option>
-            <option [value]="1">Critical</option>
-            <option [value]="2">High</option>
-            <option [value]="3">Medium</option>
-            <option [value]="4">Low</option>             
-        </select>  
-        <div class="manageActionbutton" [ngStyle]="{'width':updateDisplay === 1 ? '23%' : '62%' }">
+        <button type="button" class="btn btn-primary" (click)="openConfirmDialog(value='',2)">Add</button>        
+        <div class="manageActionbutton" [ngStyle]="{'width':updateDisplay === 1 ? '62%' : '62%' }">
          <ng-multiselect-dropdown
           [placeholder]="'Filter Task'"
           [data]="manageFilterList"
@@ -689,7 +675,24 @@
           (onDeSelect)="manageFilterDeSelect($event)"
           (onDeSelectAll)="manageFilterDeSelectAll($event)">
         </ng-multiselect-dropdown>
-        </div>       
+        </div>             
+      </div>
+
+      <div class="header_action" *ngIf="updateDisplay === 1">        
+        <button type="button" class="btn btn-danger" (click)="remove()" >Delete/Archive</button>
+        <select (change)="multiupdateValue(c.value,'cate')" #c class="updatecate select" value="updateCate">
+            <option value="">Update Category</option>
+            <option *ngFor="let key of category" [value]="key.value">{{
+              key.label}}
+            </option>                
+        </select>
+        <select (change)="multiupdateValue(p.value,'pr')" #p class="updatecate select">
+            <option value="">Update Priority</option>
+            <option [value]="1">Critical</option>
+            <option [value]="2">High</option>
+            <option [value]="3">Medium</option>
+            <option [value]="4">Low</option>             
+        </select>       
       </div>
       
 
@@ -701,6 +704,7 @@
         [footerHeight]="50"       
         [selected]="selected"
         [scrollbarV]="true"
+        [scrollbarH]="false"
         [rowHeight]="getRowHeight"
         [selectionType]="'checkbox'"
         [selectAllRowsOnPage]="false"
@@ -716,7 +720,7 @@
           [resizeable]="false"
           [headerCheckboxable]="true"
           [checkboxable]="true"
-          class="material managecheckbox">
+          class="managecheckbox">
           <ng-template ngx-datatable-cell-template let-row="row" let-expanded="expanded">
             <a
                 href="javascript:void(0)"
@@ -743,16 +747,16 @@
                 <div class="managedetailsdata"><span class="managedataheader">Due Date :</span> {{row.dueOn}}</div>                 
               </div>
               <div class="col-md-6">
-                <div class="managedetailsdata"><span class="managedataheader">Last Recorded :</span>{{row.lastRecordTime}}</div>
+                <div class="managedetailsdata"><span class="managedataheader">Last Recorded :</span> {{row.lastRecordTime}}</div>
                 <div class="managedetailsdata"><span class="managedataheader">Time Spent :</span> {{row.totalTime}}</div> 
-                 <div class="managedetailsdata"><span class="managedataheader">Last Modified :</span> {{row.lastModifyTime}}</div>
+                 <div class="managedetailsdata"><span class="managedataheader">Last Modified : </span> {{row.lastModifyTime}}</div>
               </div>
              
             </div>
           </ng-template> 
         </ngx-datatable-row-detail>
 
-        <ngx-datatable-column name="Task" [width]="180" [sortable]="true" >    
+        <ngx-datatable-column name="Task" [width]="160" [sortable]="true" >    
           <ng-template let-column="column" ngx-datatable-header-template>
             {{column.name}} <br>
             <input type="text" class="managetextfilter" placeholder="Type to filter" (keyup)="updateFilter($event,'name')"/> 
@@ -832,8 +836,8 @@
           <ng-template #deleteBtn let-value="value"  let-row="manage_rows"  ngx-datatable-cell-template>
             <div class="d-flex justify-content-center btn btn-sm btn-outline-secondary">
               <span  *ngIf="value.status == 0" [ngClass] ="{task_start :value.state == 0, task_stop :value.state == 1}" class="ts_status" (click)="onStartTime(value, value.state)" title="{{ value.state == 0 ? 'Start' : 'Stop'}}"></span>
-              <i *ngIf="value.timelog.length > 0" (click)="archiveTasks(value,filter_no)" class="fa fa-archive" title="Archive"></i>
-              <i class="fa fa-trash" *ngIf="value.timelog.length === 0" (click)="deleteTasks(value,filter_no)" title="Delete"></i>               
+              <i *ngIf="value.timelog?.length !=0" (click)="archiveTasks(value,filter_no)" class="fa fa-archive" title="Archive"></i>
+              <i class="fa fa-trash" *ngIf="value.timelog?.length == 0" (click)="deleteTasks(value,filter_no)" title="Delete"></i>               
               <i class="fa fa-clone" (click)="cloneTasks(value,1,0)" title="Clone"></i>
               <i class="fa fa-clipboard" (click)="cloneTasks(value,2,0)" title="Repeat"></i>
               <i class="fa fa-pencil-square-o" (click)="openConfirmDialog(value,3)" aria-hidden="true" title="Edit"></i> 
@@ -902,7 +906,7 @@
             <div *ngIf="catconfig.hasAllCheckBox || catconfig.hasCollapseExpand" class="row">
               <div class="col-12">
                 <label *ngIf="catconfig.hasAllCheckBox" (click)="select(item)">
-                  <strong>TEST</strong>
+                  <strong></strong>
                 </label>
                 <label *ngIf="catconfig.hasCollapseExpand" class="pull-right" (click)="onCollapseExpand()">
                   <i [title]="i18n.getTooltipCollapseExpandText(item.collapsed)" aria-hidden="true" class="fa" [class.fa-expand]="item.collapsed"
