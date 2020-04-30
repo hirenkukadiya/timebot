@@ -32,7 +32,7 @@
     "core-js": "^2.5.4",
     "daypilot-pro-angular": "https://npm.daypilot.org/daypilot-pro-angular/trial/2019.2.3816.tar.gz",
     "hammerjs": "^2.0.8",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "moment": "^2.24.0",
     "ng-multiselect-dropdown": "^0.2.3",
     "ng5-slider": "^1.1.13",
